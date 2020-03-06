@@ -24,6 +24,13 @@ def process_data(json_data):
     subjects = [d['nick'] for d in json_data]
     return subjects
 
+def get_subjects(filepath='data.jl'):
+    subjects = []
+    with open(filepath) as f:
+        for line in f:
+            subjects.append(json.loads(line)['nick'])
+    return subjects
+
 def send_prediction(run_nr, predictions):
     data = []
     for subject, score, label in predictions:
@@ -32,13 +39,15 @@ def send_prediction(run_nr, predictions):
             'decision': label,
             'score': score
         })
+    print('prediction len', len(data))
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
     response = requests.post(url=URL_POST%(TOKEN,run_nr), data=json.dumps(data), headers=headers)
 
     return response
 
 def get_predictions(data):
-    subjects = process_data(data)
+    data = process_data(data)
+    subjects = get_subjects()
     # dummy predictions
     predictions = [(s, 0, 0.6) for s in subjects]
     return predictions
@@ -52,15 +61,23 @@ def serialize_data(data):
         for item in process_data(data):
             f.write(item + '\n')
 
+def read_data(filepath):
+    data = []
+    with open(filepath) as f:
+        for line in f:
+            data.append(json.loads(line))
+    return data
+
 if __name__=='__main__':
     data = get_users()
-    print(data)
+
+    print('len data', len(data), data)
     serialize_data(data)
 
-    for run in [1, 0, 2, 4, 3]:
+    for run in range(5):
 
-        print(run)
-        predictions = get_predictions(get_users())
+        print('run', run)
+        predictions = get_predictions(data)
         print(send_prediction(run, predictions))
         # You get new round once you submit your results for run 5.
         # What if you submit for run 5 in the beginning tho? Still doesn't give you the new ones right after run 5. It waits to get all of them that's it.
