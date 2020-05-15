@@ -28,8 +28,8 @@ print("Loading text data...")
 #writings_clpsych = pd.DataFrame.from_dict(json.load(open('writings_df_clpsych_all.json')))
 #all_texts = "\n".join(writings_clpsych.text.values)
 #pickle.dump(all_texts, open("clpsych_text_dump.pkl", "wb+"))
-#all_texts = pickle.load(open("all_texts_clpsych_erisk.pkl", "rb"))
-all_texts = pickle.load(open("texts_erisk_selfharm.pkl", "rb"))
+all_texts = pickle.load(open("all_texts_clpsych_erisk_negative.pkl", "rb"))
+#all_texts = pickle.load(open("texts_erisk_selfharm.pkl", "rb"))
 
 #print("Tokenizing text data...")
 #tt = TweetTokenizer()
@@ -49,9 +49,9 @@ all_texts = pickle.load(open("texts_erisk_selfharm.pkl", "rb"))
 # corp_vocab = list(set(oov) - set(oov_rare))
 #corp_vocab = get_freqw(all_texts_tokenized_clean, 10000)
 #pickle.dump(corp_vocab, open("vocab_clpsych_10000.pkl", "wb+"))
-corp_vocab = pickle.load(open("all_vocab_clpsych_erisk_10000.pkl", "rb"))
+corp_vocab = pickle.load(open("all_vocab_clpsych_erisk_negative_stop_20000.pkl", "rb"))
 original_glove = {k:v for k,v in pre_glove.items() if k in corp_vocab}
-pickle.dump(original_glove, open("original_glove_clpsych_erisk.pkl", "wb+"))
+pickle.dump(original_glove, open("original_glove_clpsych_erisk_negative_stop_20000.pkl", "wb+"))
 
 # Train with mittens
 print("Computing cooccurrence matrix...") 
@@ -60,11 +60,11 @@ X = cv.fit_transform([all_texts])
 Xc = (X.T * X)
 Xc.setdiag(0)
 coocc_ar = Xc.toarray()
-pickle.dump(coocc_ar, open("coocc_mat_erisk_selfharm_10000.pkl", "wb+"), protocol=4)
+pickle.dump(coocc_ar, open("coocc_mat_clpsych_erisk_negative_stop_20000.pkl", "wb+"), protocol=4)
 #coocc_ar = pickle.load(open("coocc_mat_clpsych_oov2.pkl", "rb"))
 
 print("Training with mittens...")
-mittens_model = Mittens(n=100, max_iter=500, mittens=0.5)
+mittens_model = Mittens(n=100, max_iter=1000, mittens=0.2)
 new_embeddings = mittens_model.fit(
     coocc_ar,
     vocab=corp_vocab,
@@ -72,6 +72,6 @@ new_embeddings = mittens_model.fit(
 
 print("Serializing embeddings...")
 newglove = dict(zip(corp_vocab, new_embeddings))
-f = open("finetuned_glove_erisk_selfharm.pkl","wb")
+f = open("finetuned_glove_clpsych_erisk_negative_stop_20000.pkl","wb")
 pickle.dump(newglove, f)
 f.close()
