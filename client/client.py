@@ -3,8 +3,10 @@ import requests
 import json
 
 # api-endpoint
-URL_GET = "https://erisk.irlab.org/challenge-service/getwritings/%s"
-URL_POST = "https://erisk.irlab.org/challenge-service/submit/%s/%d"
+#URL_GET = "https://erisk.irlab.org/challenge-service/getwritings/%s"
+URL_GET = "https://erisk.irlab.org/challenge-t1/getwritings/%s"
+#URL_POST = "https://erisk.irlab.org/challenge-service/submit/%s/%d"
+URL_POST = "https://erisk.irlab.org/challenge-t/submit/%s/%d"
 TOKEN = "q95QLQYOeqpMuwrRdggKZ1F614619WSGS9TEyQl2bZ4"
 
 def get_users():
@@ -45,12 +47,16 @@ def send_prediction(run_nr, predictions):
 
     return response
 
-def get_predictions(data, predictions, scores):
+def get_predictions_dummy(data, predictions, scores):
     data = process_data(data)
     subjects = get_subjects()
     # dummy predictions
     predictions = [(s, predictions[s], scores[s]) for s in subjects]
     return predictions
+
+def get_response_from_file(model, run, rnd):
+   predictions_json = read_data('response_%s_run%d_rnd%d.json')
+   return predictions_json
 
 def serialize_data(data):
     round = data[0]['number']
@@ -78,7 +84,7 @@ if __name__=='__main__':
 
      #   print('run', run)
       #  predictions = get_predictions(data)
-        print(send_prediction(run, predictions))
+        #print(send_prediction(run, predictions))
         # You get new round once you submit your results for run 5.
         # What if you submit for run 5 in the beginning tho? Still doesn't give you the new ones right after run 5. It waits to get all of them that's it.
         # You should verify when building data for a new round that you are on the right round... that's it.
