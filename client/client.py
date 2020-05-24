@@ -47,12 +47,16 @@ def send_prediction(run_nr, predictions):
 
     return response
 
-def get_predictions(data, predictions, scores):
+def get_predictions_dummy(data, predictions, scores):
     data = process_data(data)
     subjects = get_subjects()
     # dummy predictions
     predictions = [(s, predictions[s], scores[s]) for s in subjects]
     return predictions
+
+def get_response_from_file(model, run, rnd):
+   predictions_json = read_data('response_%s_run%d_rnd%d.json')
+   return predictions_json
 
 def serialize_data(data):
     round = data[0]['number']
