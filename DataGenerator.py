@@ -4,14 +4,14 @@ class DataGenerator(Sequence):
     'Generates data for Keras'
     def __init__(self, hierarchical, user_level_data, subjects_split, set_type,
                  batch_size, seq_len, vocabulary,
-                 voc_size, emotion_lexicon, liwc_categories,
+                 voc_size, emotion_lexicon, emotions, liwc_categories,
                  liwc_dict, compute_liwc=False, liwc_words_for_categories=None,
                   
                  post_groups_per_user=None, posts_per_group=10, post_offset = 0,
                  max_posts_per_user=None, 
                  pad_value=0, padding='pre', pad_with_duplication=False,
                  sampling_distr_alfa=0.1, sampling_distr='exp', # 'exp', 'uniform'
-                 emotions=emotions, pronouns=["i", "me", "my", "mine", "myself"], 
+                 pronouns=["i", "me", "my", "mine", "myself"], 
                  sample_seqs=True,
                  shuffle=True, return_subjects=False, keep_last_batch=True, class_weights=None,
                 classes=1):
