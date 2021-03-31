@@ -2,11 +2,11 @@ from tensorflow.keras.utils import Sequence
 
 class DataGenerator(Sequence):
     'Generates data for Keras'
-    def __init__(self, user_level_data, subjects_split, set_type,
+    def __init__(self, hierarchical, user_level_data, subjects_split, set_type,
                  batch_size, seq_len, vocabulary,
                  voc_size, emotion_lexicon, liwc_categories,
                  liwc_dict, compute_liwc=False, liwc_words_for_categories=None,
-                 hierarchical, 
+                  
                  post_groups_per_user=None, posts_per_group=10, post_offset = 0,
                  max_posts_per_user=None, 
                  pad_value=0, padding='pre', pad_with_duplication=False,
