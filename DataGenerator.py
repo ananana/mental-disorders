@@ -1,15 +1,18 @@
+from tensorflow.keras.utils import Sequence
+
 class DataGenerator(Sequence):
     'Generates data for Keras'
-    def __init__(self, user_level_data, subjects_split, session=None, use_bert=False, set_type='train',
-                 batch_size=32, seq_len=512, vocabulary=vocabulary,
-                 voc_size=hyperparams_features['max_features'], emotion_lexicon=nrc_lexicon,
-                 hierarchical=False, pad_value=0, padding='pre',
+    def __init__(self, user_level_data, subjects_split, set_type,
+                 batch_size, seq_len, vocabulary,
+                 voc_size, emotion_lexicon, liwc_categories,
+                 liwc_dict, compute_liwc=False, liwc_words_for_categories=None,
+                 hierarchical, 
                  post_groups_per_user=None, posts_per_group=10, post_offset = 0,
+                 max_posts_per_user=None, 
+                 pad_value=0, padding='pre', pad_with_duplication=False,
                  sampling_distr_alfa=0.1, sampling_distr='exp', # 'exp', 'uniform'
-                 emotions=emotions, pronouns=["i", "me", "my", "mine", "myself"], liwc_categories=liwc_categories,
-                 liwc_dict=liwc_dict, compute_liwc=False, liwc_words_for_categories=None,
-                 pad_with_duplication=False,
-                 max_posts_per_user=None, sample_seqs=True,
+                 emotions=emotions, pronouns=["i", "me", "my", "mine", "myself"], 
+                 sample_seqs=True,
                  shuffle=True, return_subjects=False, keep_last_batch=True, class_weights=None,
                 classes=1):
         'Initialization'

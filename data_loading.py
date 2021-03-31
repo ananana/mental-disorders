@@ -1,8 +1,6 @@
 from collections import Counter
-def load_erisk_data(writings_df, voc_size, emotion_lexicon, emotions =  
-                    ['anger', 'anticipation', 'disgust', 'fear', 'joy', 
-                     'negative', 'positive', 'sadness', 'surprise', 'trust'],
-                    liwc_categories = categories, by_subset=True,
+def load_erisk_data(writings_df, voc_size, emotion_lexicon, emotions,
+                    liwc_categories, by_subset=True,
                     pronouns = ["i", "me", "my", "mine", "myself"],
                     train_prop=0.7, valid_prop=0.3, test_slice=2,
                     nr_slices=5,
