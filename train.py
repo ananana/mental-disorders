@@ -79,7 +79,7 @@ def get_network_type(hyperparams):
     return network_type, hierarch_type
 
 def initialize_experiment(hyperparams, nrc_lexicon_path, emotions, pretrained_embeddings_path, 
-                          dataset_type, transfer_type):
+                          dataset_type, transfer_type, hyperparams_features):
 
     experiment = Experiment(api_key="eoBdVyznAhfg3bK9pZ58ZSXfv",
                             project_name="mental", workspace="ananana", disabled=False)
