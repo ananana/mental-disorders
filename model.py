@@ -4,8 +4,7 @@ from tensorflow.keras.layers import Dense, Dropout, Embedding, LSTM, Lambda, Bat
     Bidirectional, Input, concatenate, Flatten, RepeatVector, Activation, Multiply, Permute, \
     Conv1D, GlobalMaxPooling1D
 from tensorflow.keras import regularizers
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras import callbacks, optimizers
+from tensorflow.keras import optimizers
 from tensorflow.keras import backend as K
 def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, emotions, stopwords_list,
                 liwc_categories,
