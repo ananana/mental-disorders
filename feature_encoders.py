@@ -12,7 +12,9 @@ def encode_emotions(tokens, emotion_lexicon, emotions, relative=True):
             print("Emotion not found.")
     return encoded_emotions
 
-def tokenize_fields(writings_df, tokenize_fct=tokenize, columns=['title', 'text']):
+
+
+def tokenize_fields(writings_df, tokenize_fct, columns=['title', 'text']):
     for c in columns:
         writings_df['tokenized_%s' % c] = writings_df['%s' % c].apply(lambda t: tokenize_fct(t) 
                                                                 if type(t)==str and t else None)
