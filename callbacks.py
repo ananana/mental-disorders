@@ -1,3 +1,4 @@
+from tensorflow.keras import callbacks
 class WeightsHistory(callbacks.Callback):
     def __init__(self, logs={}):
         super(WeightsHistory, self).__init__()
