@@ -76,8 +76,8 @@ def load_embeddings(path, embedding_dim, voc):
     for i, line in enumerate(f):
 #         print(i)
         values = line.split()
-        word = ''.join(values[:-hyperparams_features['embedding_dim']])
-        coefs = np.asarray(values[-hyperparams_features['embedding_dim']:], dtype='float32')
+        word = ''.join(values[:-embedding_dim])
+        coefs = np.asarray(values[-embedding_dim:], dtype='float32')
         word_i = voc.get(word)
         if word_i is not None:
             embedding_matrix[word_i] = coefs
