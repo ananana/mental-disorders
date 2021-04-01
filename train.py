@@ -156,7 +156,8 @@ def initialize_model(hyperparams, hyperparams_features, embedding_matrix, emotio
 def train(user_level_data, subjects_split, 
           hyperparams, hyperparams_features, 
           embedding_matrix, emotions, stopword_list, liwc_categories,
-          experiment, validation_set='valid',
+          experiment, dataset_type, transfer_type,
+          validation_set='valid',
           version=0, epochs=50, start_epoch=0,
          session=None, model=None, transfer_layer=False,
          classes=1):
