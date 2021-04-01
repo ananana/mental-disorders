@@ -1,5 +1,6 @@
 from callbacks import FreezeLayer, WeightsHistory, OutputsHistory, LRHistory, ActivationsAttention
 from tensorflow.keras import callbacks
+from metrics import Metrics
 
 def train_model(model, hyperparams,
                 data_generator_train, data_generator_valid,
@@ -59,7 +60,7 @@ def train_model(model, hyperparams,
                 ]])
     return model, history
 
-    def get_network_type(hyperparams):
+def get_network_type(hyperparams):
     if 'lstm' in hyperparams['ignore_layer']:
         network_type = 'cnn'
     else:
@@ -150,7 +151,7 @@ def initialize_model(hyperparams, hyperparams_features, embedding_matrix, emotio
     model.summary()
     return model
 
-  def train(user_level_data, subjects_split, 
+def train(user_level_data, subjects_split, 
           hyperparams, hyperparams_features, 
           embedding_matrix, emotions, stopword_list, liwc_categories,
           experiment, validation_set='valid',

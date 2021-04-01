@@ -6,6 +6,8 @@ from tensorflow.keras.layers import Dense, Dropout, Embedding, LSTM, Lambda, Bat
 from tensorflow.keras import regularizers
 from tensorflow.keras import optimizers
 from tensorflow.keras import backend as K
+from metrics import Metrics
+
 def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, emotions, stopwords_list,
                 liwc_categories,
                ignore_layer=[], activations=None, classes=1):
