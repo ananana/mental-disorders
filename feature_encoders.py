@@ -32,7 +32,7 @@ def encode_pronouns(tokens, pronouns={"i", "me", "my", "mine", "myself"}, relati
     else:
         return nr_pronouns
 
-def encode_stopwords(tokens, stopwords=stopword_list):
+def encode_stopwords(tokens, stopwords):
     encoded_stopwords = [0 for s in stopword_list]
     if not tokens:
         return encoded_stopwords
