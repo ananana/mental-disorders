@@ -21,7 +21,7 @@ def load_NRC(nrc_path):
 
 def load_LIWC(path):
     liwc_dict = {}
-    for (w, c) in readDict():
+    for (w, c) in readDict(path):
         if c not in liwc_dict:
             liwc_dict[c] = []
         liwc_dict[c].append(w)
