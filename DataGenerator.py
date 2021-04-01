@@ -1,19 +1,18 @@
 from tensorflow.keras.utils import Sequence
+import numpy as np
 
 class DataGenerator(Sequence):
     'Generates data for Keras'
-    def __init__(self, hierarchical, user_level_data, subjects_split, set_type,
+    def __init__(self, user_level_data, subjects_split, set_type,
                  batch_size, seq_len, vocabulary,
                  voc_size, emotion_lexicon, emotions, liwc_categories,
                  liwc_dict, compute_liwc=False, liwc_words_for_categories=None,
                   
                  post_groups_per_user=None, posts_per_group=10, post_offset = 0,
                  max_posts_per_user=None, 
-                 pad_value=0, padding='pre', pad_with_duplication=False,
-                 sampling_distr_alfa=0.1, sampling_distr='exp', # 'exp', 'uniform'
                  pronouns=["i", "me", "my", "mine", "myself"], 
-                 sample_seqs=True,
-                 shuffle=True, return_subjects=False, keep_last_batch=True, class_weights=None,
+                 shuffle=True, return_subjects=False, 
+                 keep_last_batch=True,
                 classes=1):
         'Initialization'
         self.seq_len = seq_len
@@ -23,12 +22,8 @@ class DataGenerator(Sequence):
         self.set = set_type
         self.emotion_lexicon = emotion_lexicon
         self.batch_size = batch_size
-        self.hierarchical = hierarchical
         self.data = user_level_data
-        self.pad_value = pad_value
         self.return_subjects = return_subjects
-        self.sampling_distr_alfa = sampling_distr_alfa
-        self.sampling_distr = sampling_distr
         self.emotions = emotions
         self.pronouns = pronouns
         self.liwc_categories = liwc_categories
@@ -36,8 +31,6 @@ class DataGenerator(Sequence):
         self.liwc_words_for_categories = liwc_words_for_categories
         self.compute_liwc = compute_liwc
         self.sample_seqs = sample_seqs
-        self.pad_with_duplication = pad_with_duplication
-        self.padding = padding
         self.keep_last_batch = keep_last_batch
         self.shuffle = shuffle
         self.voc_size = voc_size
@@ -47,39 +40,11 @@ class DataGenerator(Sequence):
         self.post_offset = post_offset
         self.posts_per_group = posts_per_group
         self.classes = classes
-        self.class_weights = class_weights
         self.generated_labels = []
         self.__post_indexes_per_user()
         self.on_epoch_end()
         
-    @staticmethod
-    def _random_sample(population_size, sample_size, sampling_distr, alfa=0.1, replacement=False):
-        if sampling_distr == 'exp':
-            # Exponential sampling
-            sample = sorted(np.random.choice(population_size, 
-                            min(sample_size, population_size),
-                            p = DataGenerator.__generate_reverse_exponential_indices(population_size, alfa),
-                            replace=replacement))
-                                                                # if pad_with_duplication, 
-                                                                # pad by adding the same post multiple times
-                                                                # if there are not enough posts
-        elif sampling_distr == 'uniform':
-            # Uniform sampling
-            sample = sorted(np.random.choice(population_size,
-                            min(sample_size, population_size),
-                            replace=replacement))
-        return sample
-    
-    @staticmethod
-    def __generate_reverse_exponential_indices(max_index, alfa=1):
-        probabilities = []
-        for x in range(max_index):
-            probabilities.append(alfa * (np.exp(alfa*x)))
-        reverse_probabilities = [p for p in probabilities]
-        sump = sum(reverse_probabilities)
-        normalized_probabilities = [p/sump for p in reverse_probabilities]
-        return normalized_probabilities
-    
+ 
     def __post_indexes_per_user(self):
         self.indexes_per_user = {u: [] for u in range(len(self.subjects_split[self.set]))}
         self.indexes_with_user = []
@@ -98,35 +63,13 @@ class DataGenerator(Sequence):
                 nr_post_groups = min(self.post_groups_per_user, nr_post_groups)
             for i in range(nr_post_groups):
                 # Generate random ordered samples of the posts
-                if self.sample_seqs:
-                    indexes_sample = DataGenerator._random_sample(population_size=len(user_posts),
-                                                         sample_size=self.posts_per_group,
-                                                         sampling_distr=self.sampling_distr,
-                                                         alfa=self.sampling_distr_alfa,
-                                                         replacement=self.pad_with_duplication)
-                    self.indexes_per_user[u].append(indexes_sample)
-                    self.indexes_with_user.append((u, indexes_sample))
-                    # break # just generate one?
-                # Generate all subsets of the posts in order
-                # TODO: Change here if you want a sliding window
-                else:
-                    self.indexes_per_user[u].append(range(i*self.posts_per_group + self.post_offset,
-                                                        min((i+1)*self.posts_per_group + self.post_offset, len(user_posts))))
-                    self.indexes_with_user.append((u, range(i*self.posts_per_group ,
-                                                        min((i+1)*self.posts_per_group + self.post_offset, len(user_posts)))))
+      
+                self.indexes_per_user[u].append(range(i*self.posts_per_group + self.post_offset,
+                                                    min((i+1)*self.posts_per_group + self.post_offset, len(user_posts))))
+                self.indexes_with_user.append((u, range(i*self.posts_per_group ,
+                                                    min((i+1)*self.posts_per_group + self.post_offset, len(user_posts)))))
 
-        if self.class_weights:
-            for item in self.indexes_with_user:
-                u, _ = item
-                s = self.subjects_split[self.set][u]
-                # Note: weight 1 is default.
-                try:
-                    self.item_weights.append(1./self.class_weights[self.data[s]['label']])
-                except Exception as e:
-                    self.item_weights.append(1)
-                    logger.error("Could not compute item weight for user %s. " % s + str(e) + "\n")
-        else:
-            self.item_weights = []
+        self.item_weights = []
 
     def __encode_text(self, tokens, raw_text):
         # Using voc_size-1 value for OOV token
@@ -197,16 +140,9 @@ class DataGenerator(Sequence):
             # Note: was bug here - changed it into a list
             post_indexes_per_user[user].append(post_indexes)
 
-        # Generate data
-        if self.hierarchical:
-            X, s, y = self.__data_generation_hierarchical(users, post_indexes_per_user)
-        else:
-            X, s, y = self.__data_generation(users, post_indexes_per_user)
 
-        if self.return_subjects:
-            return X, s, y
-        else:
-            return X, y
+        X, s, y = self.__data_generation_hierarchical(users, post_indexes_per_user)
+        return X, y
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
@@ -214,80 +150,6 @@ class DataGenerator(Sequence):
 #         np.arange(len(self.subjects_split[self.set]))
         if self.shuffle:
             np.random.shuffle(self.indexes)
-        if self.class_weights:
-            # Sample users according to class weight (Or do this for each batch instead?)
-            normalized_weights = [w/sum(self.item_weights) for w in self.item_weights]
-            random_user_indexes = np.random.choice(len(self.indexes_with_user), 
-                            len(self.indexes_with_user),
-                            p = normalized_weights, replace=True)
-            self.indexes = [self.indexes_with_user[i] for i in random_user_indexes]
-    def __data_generation(self, users, post_indexes):
-        'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
-        tokens_data = []
-        categ_data = []
-        sparse_data = []
-        subjects = []
-
-        labels = []
-
-        for subject in users:
-
-            if 'label' in self.data[subject]:
-                label = self.data[subject]['label']
-            else:
-                label = None
-
-            
-            all_words = []
-            all_raw_texts = []
-            liwc_aggreg = []
-
-            for post_index_range in post_indexes[subject]:
-                # Sample
-                texts = [self.data[subject]['texts'][i] for i in post_index_range]
-                if 'liwc' in self.data[subject] and not self.compute_liwc:
-                    liwc_selection = [self.data[subject]['liwc'][i] for i in post_index_range]
-                raw_texts = [self.data[subject]['raw'][i] for i in post_index_range]
-
-                all_words.append(sum(texts, [])) # merge all texts in group in one list
-                if 'liwc' in self.data[subject] and not self.compute_liwc:
-                    liwc_aggreg.append(np.array(liwc_selection).mean(axis=0).tolist())
-                all_raw_texts.append(" ".join(raw_texts))
-            for i, words in enumerate(all_words):
-                encoded_tokens, encoded_emotions, encoded_pronouns, encoded_stopwords, encoded_liwc, \
-                    = self.__encode_text(words, all_raw_texts[i])
-                try:
-                    subject_id = int(re.findall('[0-9]+', subject)[0])
-                except IndexError:
-                    subject_id = subject
-                tokens_data.append(encoded_tokens)
-                # TODO: what will be the difference between these?
-                # I think instead of averaging for the post group, it just does it correctly
-                # for the whole post group (when computing, non-lazily)
-                if 'liwc' in self.data[subject] and not self.compute_liwc:  
-                    categ_data.append(encoded_emotions + [encoded_pronouns] + liwc_aggreg[i])
-                   
-                else:
-                    categ_data.append(encoded_emotions + [encoded_pronouns] + encoded_liwc)
-                    
-                sparse_data.append(encoded_stopwords)
-
-                
-                labels.append(label)
-                subjects.append(subject_id)
-
-        
-        self.generated_labels.extend(labels)
-        # using zeros for padding
-        tokens_data_padded = sequence.pad_sequences(tokens_data, maxlen=self.seq_len, 
-                                                    padding=self.padding,
-                                                   truncating=self.padding)
-
-       
-        return ([np.array(tokens_data_padded), np.array(categ_data), np.array(sparse_data),
-                ],
-                np.array(subjects),
-                np.array(labels))
     
     def __data_generation_hierarchical(self, users, post_indexes):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
@@ -323,17 +185,12 @@ class DataGenerator(Sequence):
                 if 'liwc' in self.data[subject] and not self.compute_liwc:
                     liwc_scores.append(liwc_selection)
                 all_raw_texts.append(raw_texts)
-            
-#             if len(texts) < self.max_posts_per_user:
-#                 # TODO: pad with zeros
-#                 pass
 
             for i, words in enumerate(all_words):
                 tokens_data = []
                 categ_data = []
                 sparse_data = []
 
-                
                 raw_text = all_raw_texts[i]
                 words = all_words[i]
                 
@@ -349,8 +206,7 @@ class DataGenerator(Sequence):
                     except IndexError:
                         subject_id = subject
                     tokens_data.append(encoded_tokens)
-                    # using zeros for padding
-                    # TODO: there is something wrong with this
+                 
                     categ_data.append(encoded_emotions + [encoded_pronouns] + liwc)
                     sparse_data.append(encoded_stopwords)
 
@@ -381,7 +237,6 @@ class DataGenerator(Sequence):
                                                   maxlen=self.posts_per_group, 
                                                   value=self.pad_value)
         user_sparse_data = np.rollaxis(np.dstack(user_sparse_data), -1)
-        
        
         self.generated_labels.extend(labels)
 
