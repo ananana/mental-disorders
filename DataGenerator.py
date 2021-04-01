@@ -11,9 +11,8 @@ class DataGenerator(Sequence):
                  post_groups_per_user=None, posts_per_group=10, post_offset = 0,
                  max_posts_per_user=None, 
                  pronouns=["i", "me", "my", "mine", "myself"], 
-                 shuffle=True, return_subjects=False, 
-                 keep_last_batch=True,
-                classes=1):
+                 shuffle=True, 
+                 keep_last_batch=True):
         'Initialization'
         self.seq_len = seq_len
         # Instantiate tokenizer
@@ -23,14 +22,12 @@ class DataGenerator(Sequence):
         self.emotion_lexicon = emotion_lexicon
         self.batch_size = batch_size
         self.data = user_level_data
-        self.return_subjects = return_subjects
         self.emotions = emotions
         self.pronouns = pronouns
         self.liwc_categories = liwc_categories
         self.liwc_dict = liwc_dict
         self.liwc_words_for_categories = liwc_words_for_categories
         self.compute_liwc = compute_liwc
-        self.sample_seqs = sample_seqs
         self.keep_last_batch = keep_last_batch
         self.shuffle = shuffle
         self.voc_size = voc_size
@@ -39,7 +36,6 @@ class DataGenerator(Sequence):
         self.post_groups_per_user = post_groups_per_user
         self.post_offset = post_offset
         self.posts_per_group = posts_per_group
-        self.classes = classes
         self.generated_labels = []
         self.__post_indexes_per_user()
         self.on_epoch_end()
