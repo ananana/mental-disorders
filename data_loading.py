@@ -1,4 +1,5 @@
 from collections import Counter
+import numpy as np
 def load_erisk_data(writings_df, voc_size, emotion_lexicon, emotions,
                     liwc_categories, by_subset=True,
                     pronouns = ["i", "me", "my", "mine", "myself"],
