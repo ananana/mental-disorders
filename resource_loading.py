@@ -1,5 +1,6 @@
 from liwc_readDict import readDict
 import pickle
+import numpy as np
 
 def load_NRC(nrc_path):
     word_emotions = {}
