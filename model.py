@@ -13,7 +13,7 @@ def build_hierarchical_model(hyperparams, hyperparams_features,
                 emotions_dim, stopwords_list_dim, liwc_categories_dim,
                ignore_layer=[]):
 
-    embeddings_matrix = load_embeddings(hyperparams_features['embeddings_path'],
+    embedding_matrix = load_embeddings(hyperparams_features['embeddings_path'],
                                         hyperparams_features['embedding_dim'],
                                         hyperparams_features['vocabulary_path'],
                                         hyperparams_features['max_features'])
