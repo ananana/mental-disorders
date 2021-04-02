@@ -65,24 +65,3 @@ def load_erisk_data(writings_df, hyperparams_features, by_subset=True,
             
     return user_level_texts, subjects_split, vocabulary
 
-
-def load_embeddings(path, embedding_dim, voc):
-    # random matrix with mean value = 0
-    embedding_matrix = np.random.random((len(voc)+2, embedding_dim)) - 0.5 # voc + unk + pad value(0)
-    cnt_inv = 0
-    f = open(path, encoding='utf8')
-    for i, line in enumerate(f):
-#         print(i)
-        values = line.split()
-        word = ''.join(values[:-embedding_dim])
-        coefs = np.asarray(values[-embedding_dim:], dtype='float32')
-        word_i = voc.get(word)
-        if word_i is not None:
-            embedding_matrix[word_i] = coefs
-            cnt_inv += 1
-    f.close()
-
-    print('Total %s word vectors.' % len(embedding_matrix))
-    print('Words not found in embedding space %d' % (len(embedding_matrix)-cnt_inv))
- 
-    return embedding_matrix
