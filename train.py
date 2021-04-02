@@ -4,6 +4,7 @@ from metrics import Metrics
 from comet_ml import Experiment, Optimizer
 import logging, sys
 import pickle
+from DataGenerator import DataGenerator
 
 def train_model(model, hyperparams,
                 data_generator_train, data_generator_valid,
