@@ -116,21 +116,21 @@ def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix
                                return_sequences='attention_user' not in ignore_layer,
                           name='LSTM_layer_user')(merged_layers)
 
-        # Attention
-        if 'attention_user' not in ignore_layer:
-            attention_user_layer = Dense(1, activation='tanh', name='attention_user')
-            attention_user = attention_user_layer(lstm_user_layers)
-            attention_user = Flatten()(attention_user)
-            attention_user_output = Activation('softmax')(attention_user)
-            attention_user = RepeatVector(hyperparams['lstm_units_user'])(attention_user_output)
-            attention_user = Permute([2, 1])(attention_user)
+    # Attention
+    if 'attention_user' not in ignore_layer:
+        attention_user_layer = Dense(1, activation='tanh', name='attention_user')
+        attention_user = attention_user_layer(lstm_user_layers)
+        attention_user = Flatten()(attention_user)
+        attention_user_output = Activation('softmax')(attention_user)
+        attention_user = RepeatVector(hyperparams['lstm_units_user'])(attention_user_output)
+        attention_user = Permute([2, 1])(attention_user)
 
-            user_representation = Multiply()([lstm_user_layers, attention_user])
-            user_representation = Lambda(lambda xin: K.sum(xin, axis=1), 
-                                         output_shape=(hyperparams['lstm_units_user'],))(user_representation)
+        user_representation = Multiply()([lstm_user_layers, attention_user])
+        user_representation = Lambda(lambda xin: K.sum(xin, axis=1), 
+                                     output_shape=(hyperparams['lstm_units_user'],))(user_representation)
 
-        else:
-            user_representation = lstm_user_layers
+    else:
+        user_representation = lstm_user_layers
 
     user_representation = Dropout(hyperparams['dropout'], name='user_repr_dropout')(user_representation)
 
