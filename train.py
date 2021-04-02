@@ -119,19 +119,19 @@ def initialize_datasets(user_level_data, subjects_split, hyperparams, hyperparam
     else:
         class_weights = None
     data_generator_train = DataGenerator(user_level_data, subjects_split, set_type='train',
+                                        hyperparams_features=hyperparams_features,
                                         seq_len=hyperparams['maxlen'], batch_size=hyperparams['batch_size'],
                                         posts_per_group=hyperparams['posts_per_group'], post_groups_per_user=hyperparams['post_groups_per_user'],
                                         max_posts_per_user=hyperparams['posts_per_user'], 
-                                         compute_liwc=True, liwc_words_for_categories=liwc_words_for_categories,
-                                         emotions=emotions, liwc_categories=liwc_categories)
+                                         compute_liwc=True)
     data_generator_valid = DataGenerator(user_level_data, subjects_split, set_type=validation_set,
+                                            hyperparams_features=hyperparams_features,
                                         seq_len=hyperparams['maxlen'], batch_size=hyperparams['batch_size'],
                                         posts_per_group=hyperparams['posts_per_group'], 
                                          post_groups_per_user=1,
                                         max_posts_per_user=None, 
                                         shuffle=False,
-                                         compute_liwc=True, liwc_words_for_categories=liwc_words_for_categories,
-                                        emotions=emotions, liwc_categories=liwc_categories)
+                                         compute_liwc=True)
 
     return data_generator_train, data_generator_valid
 
