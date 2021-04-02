@@ -1,4 +1,3 @@
-
 from tensorflow.keras.models import Sequential, Model, load_model
 from tensorflow.keras.layers import Dense, Dropout, Embedding, LSTM, Lambda, BatchNormalization, TimeDistributed, \
     Bidirectional, Input, concatenate, Flatten, RepeatVector, Activation, Multiply, Permute, \
@@ -6,6 +5,8 @@ from tensorflow.keras.layers import Dense, Dropout, Embedding, LSTM, Lambda, Bat
 from tensorflow.keras import regularizers
 from tensorflow.keras import optimizers
 from tensorflow.keras import backend as K
+from tensorflow.keras.metrics import Precision, Recall, f1_m
+from tensorflow.metrics import auc
 from metrics import Metrics
 
 def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, emotions, stopwords_list,
@@ -152,8 +153,8 @@ def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix
         metrics_class = Metrics(threshold=hyperparams['threshold'])
         hierarchical_model.compile(hyperparams['optimizer'], K.binary_crossentropy,
                       metrics=[
-                      tf.keras.metrics.f1_m(), tf.keras.metrics.Precision(),
-                      tf.keras.metrics.Recall(), tf.metrics.auc()])
+                      f1_m(), Precision(),
+                      Recall(), auc()])
     else:
         
         hierarchical_model.compile(hyperparams['optimizer'], K.categorical_crossentropy,
