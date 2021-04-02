@@ -120,24 +120,18 @@ def initialize_datasets(user_level_data, subjects_split, hyperparams, hyperparam
         class_weights = None
     data_generator_train = DataGenerator(user_level_data, subjects_split, set_type='train',
                                         seq_len=hyperparams['maxlen'], batch_size=hyperparams['batch_size'],
-                                        sample_seqs=hyperparams['sample_seqs'], sampling_distr=hyperparams['sampling_distr'],
                                         posts_per_group=hyperparams['posts_per_group'], post_groups_per_user=hyperparams['post_groups_per_user'],
                                         max_posts_per_user=hyperparams['posts_per_user'], 
-                                         hierarchical=hyperparams['hierarchical'], 
-                                         use_bert='bert_layer' not in hyperparams['ignore_layer'],
                                          compute_liwc=True, liwc_words_for_categories=liwc_words_for_categories,
-                                         emotions=emotions, liwc_categories=liwc_categories,
-                                        session=session, classes=classes, class_weights=class_weights)
+                                         emotions=emotions, liwc_categories=liwc_categories)
     data_generator_valid = DataGenerator(user_level_data, subjects_split, set_type=validation_set,
                                         seq_len=hyperparams['maxlen'], batch_size=hyperparams['batch_size'],
                                         posts_per_group=hyperparams['posts_per_group'], 
-                                         post_groups_per_user=1,#hyperparams['post_groups_per_user'],
+                                         post_groups_per_user=1,
                                         max_posts_per_user=None, 
-                                        sample_seqs=False, shuffle=False, hierarchical=hyperparams['hierarchical'],
-                                         use_bert='bert_layer' not in hyperparams['ignore_layer'],
+                                        shuffle=False,
                                          compute_liwc=True, liwc_words_for_categories=liwc_words_for_categories,
-                                        emotions=emotions, liwc_categories=liwc_categories,
-                                        session=session, classes=classes)
+                                        emotions=emotions, liwc_categories=liwc_categories)
 
     return data_generator_train, data_generator_valid
 
