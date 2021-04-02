@@ -31,11 +31,8 @@ def load_saved_model_weights(model_path, hyperparams, stopwords_dim, h5=False):
     metrics_class = Metrics(threshold=hyperparams['threshold'])
     dependencies = {
     'f1_m': metrics_class.f1_m,
-    'auc': metrics_class.auc,
     'precision_m': metrics_class.precision_m,
     'recall_m': metrics_class.recall_m,
-    'binary_crossentropy_custom': binary_crossentropy_custom,
-    'BertLayer': BertLayer
     }
     loaded_model = initialize_model(hyperparams, hyperparams_features, stopwords_dim)
     loaded_model.summary()
