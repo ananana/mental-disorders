@@ -1,5 +1,6 @@
 from metrics import Metrics
 import json
+from tensorflow.keras.models import load_model
 from train import initialize_model
 def save_model_and_params(model, model_path, hyperparams, hyperparams_features):
     model.save_weights(model_path + "_weights.h5", save_format='h5')
@@ -19,11 +20,8 @@ def load_saved_model(model_path, hyperparams):
     metrics_class = Metrics(threshold=hyperparams['threshold'])
     dependencies = {
     'f1_m': metrics_class.f1_m,
-    'auc': metrics_class.auc,
     'precision_m': metrics_class.precision_m,
     'recall_m': metrics_class.recall_m,
-    'binary_crossentropy_custom': binary_crossentropy_custom,
-    'BertLayer': BertLayer
     }
     loaded_model = load_model(model_path + "_model.h5", custom_objects=dependencies)
     return loaded_model
