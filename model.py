@@ -8,6 +8,9 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.metrics import AUC
 from metrics import Metrics
 
+import multiprocessing as mp
+mp.set_start_method('spawn', force=True)
+
 def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, 
                 emotions_dim, stopwords_list_dim, liwc_categories_dim,
                ignore_layer=[], activations=None, classes=1):
