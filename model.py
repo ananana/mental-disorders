@@ -7,11 +7,16 @@ from tensorflow.keras import optimizers
 from tensorflow.keras import backend as K
 from tensorflow.keras.metrics import AUC
 from metrics import Metrics
+from resource_loading import load_embeddings
 
-def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, 
+def build_hierarchical_model(hyperparams, hyperparams_features, 
                 emotions_dim, stopwords_list_dim, liwc_categories_dim,
                ignore_layer=[]):
 
+    embeddings_matrix = load_embeddings(hyperparams_features['embeddings_path'],
+                                        hyperparams_features['embedding_dim'],
+                                        hyperparams_features['vocabulary_path'],
+                                        hyperparams_features['max_features'])
     # Post/sentence representation - word sequence
     tokens_features = Input(shape=(hyperparams['maxlen'],), name='word_seq')
     embedding_layer = Embedding(hyperparams_features['max_features'], 

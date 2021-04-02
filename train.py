@@ -163,7 +163,7 @@ def initialize_model(hyperparams, hyperparams_features, embedding_matrix, stopwo
       stopwords_dim = 0
     
     # Initialize model
-    model = build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, 
+    model = build_hierarchical_model(hyperparams, hyperparams_features,
                                          emotions_dim, stopwords_dim, liwc_categories_dim,
                        ignore_layer=hyperparams['ignore_layer'])
    
