@@ -73,7 +73,6 @@ def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix
 
     user_encoder = TimeDistributed(sentEncoder, name='user_encoder')(posts_history_input)
 
-    bert_user_encoder = None
 
     dense_layer_sparse = Dense(units=hyperparams['dense_bow_units'],
                               name='sparse_feat_dense_layer', activation='relu',
@@ -98,7 +97,6 @@ def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix
                                                      name='sparse_features_norm')(dense_layer_sparse_user)
     all_layers = {
         'user_encoded': user_encoder,
-        'bert_layer': bert_user_encoder,
 
         'numerical_dense_layer': dense_layer_numerical_user,
 
@@ -146,7 +144,7 @@ def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix
 
     hierarchical_model = Model(inputs=[posts_history_input, 
                                        numerical_features_history, sparse_features_history,
-                                      in_id_bert_history, in_mask_bert_history, in_segment_bert_history], 
+                                      ], 
                   outputs=output_layer)
  
     
