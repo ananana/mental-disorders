@@ -52,7 +52,7 @@ def train_model(model, hyperparams,
 
 
     history = model.fit_generator(data_generator_train,
-                steps_per_epoch=100,
+                # steps_per_epoch=100,
               epochs=epochs, initial_epoch=start_epoch, 
               class_weight=class_weight,
               validation_data=data_generator_valid,
@@ -60,7 +60,7 @@ def train_model(model, hyperparams,
 #               validation_split=0.3,
                        workers=workers,
                        use_multiprocessing=False,
-                       max_queue_size=100,
+                       # max_queue_size=100,
 
             callbacks = [
                 # callbacks.ModelCheckpoint(filepath='%s_best.h5' % model_path, verbose=1, 
