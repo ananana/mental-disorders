@@ -35,7 +35,7 @@ class DataGenerator(Sequence):
         self.vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
         self.voc_size = hyperparams_features['max_features']
         self.emotion_lexicon = load_NRC(hyperparams_features['nrc_lexicon_path'])
-        self.emotions = list(nrc_lexicon.keys())
+        self.emotions = list(emotion_lexicon.keys())
         self.liwc_dict = load_LIWC(hyperparams_features['liwc_path'])
         self.liwc_categories = set(liwc_dict.keys())
         self.liwc_words_for_categories = pickle.load(open(hyperparams_features["liwc_words_cached"], "rb"))
