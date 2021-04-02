@@ -34,7 +34,7 @@ class DataGenerator(Sequence):
         self.post_offset = post_offset
         self.posts_per_group = posts_per_group
         self.generated_labels = []
-
+        self.padding="pre"
         self.vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
         self.voc_size = hyperparams_features['max_features']
         if ablate_emotions:
