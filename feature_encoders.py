@@ -39,7 +39,7 @@ def encode_stopwords(tokens, stopwords_list=None):
     encoded_stopwords = [0 for s in stopwords_list]
     if not tokens:
         return encoded_stopwords
-    for i, stopword in enumerate(stopwords):
+    for i, stopword in enumerate(stopwords_list):
         if stopword in tokens:
             encoded_stopwords[i] += 1
     return encoded_stopwords
