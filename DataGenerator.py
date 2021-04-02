@@ -2,6 +2,7 @@ from tensorflow.keras.utils import Sequence
 import numpy as np
 import pickle
 import re
+from tensorflow.keras.preprocessing import sequence
 from resource_loading import load_NRC, load_LIWC, load_vocabulary
 from feature_encoders import encode_emotions, encode_pronouns, encode_stopwords
 class DataGenerator(Sequence):
