@@ -2,7 +2,7 @@ from callbacks import FreezeLayer, WeightsHistory, OutputsHistory, LRHistory, Ac
 from tensorflow.keras import callbacks
 from metrics import Metrics
 from comet_ml import Experiment, Optimizer
-import logging
+import logging, sys
 
 def train_model(model, hyperparams,
                 data_generator_train, data_generator_valid,
