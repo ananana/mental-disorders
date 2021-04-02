@@ -116,6 +116,49 @@ def build_hierarchical_model(hyperparams, hyperparams_features,
                                return_sequences='attention_user' not in ignore_layer,
                           name='LSTM_layer_user')(merged_layers)
 
+
+    # BERT (deprecated)
+    if 'bert_layer' not in hyperparams['ignore_layer']:
+        in_id_bert = Input(shape=(hyperparams['maxlen'],), name="input_ids_bert")
+        in_mask_bert = Input(shape=(hyperparams['maxlen'],), name="input_masks_bert")
+        in_segment_bert = Input(shape=(hyperparams['maxlen'],), name="segment_ids_bert")
+        bert_inputs = [in_id_bert, in_mask_bert, in_segment_bert]
+
+        bert_output = BertLayer(n_fine_tune_layers=hyperparams['bert_finetune_layers'], 
+                                pooling=hyperparams['bert_pooling'],
+                               trainable=hyperparams['bert_trainable'],
+                               name='bert_layer')(bert_inputs)
+        dense_bert = Dense(hyperparams['bert_dense_units'], 
+                           activation='relu',
+                          kernel_regularizer=regularizers.l2(hyperparams['l2_dense']),
+                          name='bert_dense_layer')(bert_output)
+
+        bertSentEncoder = Model(bert_inputs, dense_bert)
+
+
+        in_id_bert_history = Input(shape=(hyperparams['posts_per_group'],
+                                                          hyperparams['maxlen'],), name="input_ids_bert_hist")
+        in_mask_bert_history = Input(shape=(hyperparams['posts_per_group'],
+                                                            hyperparams['maxlen'],), name="input_masks_bert_hist")
+        in_segment_bert_history = Input(shape=(hyperparams['posts_per_group'],
+                                                               hyperparams['maxlen'],), name="segment_ids_bert_hist")
+        bert_inputs_history = [in_id_bert_history, in_mask_bert_history, in_segment_bert_history]
+        bert_inputs_concatenated = concatenate(bert_inputs_history)
+        inputs_indices = [hyperparams['maxlen']*i for i in range(3)]
+        # slice the input in equal slices on the last dimension
+        bert_encoder_layer = TimeDistributed(Lambda(lambda x: bertSentEncoder([x[:,inputs_indices[0]:inputs_indices[1]], 
+                                                                      x[:,inputs_indices[1]:inputs_indices[2]],
+                                                                              x[:,inputs_indices[2]:]])),
+                                            name='bert_distributed_layer')(
+                            bert_inputs_concatenated)
+        bertUserEncoder = Model(bert_inputs_history, bert_encoder_layer)
+        bertUserEncoder.summary()
+
+        bert_user_encoder = bertUserEncoder(bert_inputs_history)
+    else:
+        bert_user_encoder = None
+    ###
+
     # Attention
     if 'attention_user' not in ignore_layer:
         attention_user_layer = Dense(1, activation='tanh', name='attention_user')
