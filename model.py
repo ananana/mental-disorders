@@ -11,9 +11,6 @@ from metrics import Metrics
 def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, emotions, stopwords_list,
                 liwc_categories,
                ignore_layer=[], activations=None, classes=1):
-    def attention(xin):
-        return K.sum(xin, axis=1) 
-
 
     # Post/sentence representation - word sequence
     tokens_features = Input(shape=(hyperparams['maxlen'],), name='word_seq')
