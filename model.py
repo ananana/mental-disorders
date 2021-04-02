@@ -31,21 +31,21 @@ def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix
                                return_sequences='attention' not in ignore_layer,
                           name='LSTM_layer')(embedding_layer)
 
-        # Attention
-        if 'attention' not in ignore_layer:
-            attention_layer = Dense(1, activation='tanh', name='attention')
-            attention = attention_layer(lstm_layers)
-            attention = Flatten()(attention)
-            attention_output = Activation('softmax')(attention)
-            attention = RepeatVector(hyperparams['lstm_units'])(attention_output)
-            attention = Permute([2, 1])(attention)
+    # Attention
+    if 'attention' not in ignore_layer:
+        attention_layer = Dense(1, activation='tanh', name='attention')
+        attention = attention_layer(lstm_layers)
+        attention = Flatten()(attention)
+        attention_output = Activation('softmax')(attention)
+        attention = RepeatVector(hyperparams['lstm_units'])(attention_output)
+        attention = Permute([2, 1])(attention)
 
-            sent_representation = Multiply()([lstm_layers, attention])
-            sent_representation = Lambda(lambda xin: K.sum(xin, axis=1), 
-                                     output_shape=(hyperparams['lstm_units'],)
-                                    )(sent_representation)
-        else:
-            sent_representation = lstm_layers
+        sent_representation = Multiply()([lstm_layers, attention])
+        sent_representation = Lambda(lambda xin: K.sum(xin, axis=1), 
+                                 output_shape=(hyperparams['lstm_units'],)
+                                )(sent_representation)
+    else:
+        sent_representation = lstm_layers
 
     if 'batchnorm' not in ignore_layer:
         sent_representation = BatchNormalization(axis=1, momentum=hyperparams['norm_momentum'],
