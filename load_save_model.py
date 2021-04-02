@@ -1,5 +1,6 @@
 from metrics import Metrics
 import json
+from train import initialize_model
 def save_model_and_params(model, model_path, hyperparams, hyperparams_features):
     model.save_weights(model_path + "_weights.h5", save_format='h5')
     with open(model_path + '.hp.json', 'w+') as hpf:
