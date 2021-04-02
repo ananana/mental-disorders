@@ -1,5 +1,4 @@
 from tensorflow.keras import callbacks
-from DataGenerator import DataGenerator
 
 class WeightsHistory(callbacks.Callback):
     def __init__(self, logs={}):
@@ -19,66 +18,6 @@ class WeightsHistory(callbacks.Callback):
                 # Layer probably does not exist
                 pass
 
-class OutputsHistory(callbacks.Callback):
-    def __init__(self, logs={}, generator=None, generator_type=""):
-        super(OutputsHistory, self).__init__()
-        self.generator_type = generator_type
-        if generator:
-            self.generator = generator
-        elif generator_type:
-            self.generator = DataGenerator(user_level_data, subjects_split, 
-                                     set_type=generator_type, 
-                                   hierarchical=hyperparams['hierarchical'],
-                                seq_len=hyperparams['maxlen'], batch_size=hyperparams['batch_size'],
-                                     max_posts_per_user=None,
-                                   pad_with_duplication=False,
-                                    posts_per_group=hyperparams['posts_per_group'],
-                                    post_groups_per_user=None, 
-                                           liwc_words_for_categories=liwc_words_for_categories,
-                                           compute_liwc=True,
-                                         emotions=emotions, liwc_categories=liwc_categories,
-                                     sample_seqs=False, shuffle=False)
-    def on_train_begin(self, logs={}):
-        self.log_outputs(0)
-    def on_epoch_end(self, epoch, logs={}):
-        if epoch % 2 == 0:
-            self.log_outputs(epoch)
-    def log_outputs(self, step):
-        try:
-            experiment.log_histogram_3d(self.model.predict(self.generator,  verbose=1, steps=2),
-                                        name='output_%s' % self.generator_type, step=step)
-        except Exception as e:
-            logger.debug("Logging outputs error: " + str(e) + "\n")
-#                 Layer probably does not exist
-            pass
-
-class ActivationsAttention(callbacks.Callback):
-    def __init__(self, logs={}, generator=None, generator_type=""):
-        super(ActivationsAttention, self).__init__()
-        self.generator_type = generator_type
-        if generator:
-            self.generator = generator
-        elif generator_type:
-            self.generator = DataGenerator(user_level_data, subjects_split, 
-                                     set_type=generator_type, 
-                                   hierarchical=hyperparams['hierarchical'],
-                                seq_len=hyperparams['maxlen'], batch_size=hyperparams['batch_size'],
-                                     max_posts_per_user=None,
-                                   pad_with_duplication=False,
-                                    posts_per_group=hyperparams['posts_per_group'],
-                                    post_groups_per_user=None, 
-                                     sample_seqs=False, shuffle=False)
-    def on_train_begin(self, logs={}):
-        self.log_outputs(0)
-    def on_epoch_end(self, epoch, logs={}):
-        if epoch % 10 == 0:
-            self.log_outputs(epoch)
-    def log_outputs(self, step):
-        try:
-            experiment.log_histogram_3d(self.model.get_layer('attention_user').output.eval())
-        except Exception as e:
-            logger.debug("Logging activations error: " + str(e) + "\n")
-            pass
 
 class LRHistory(callbacks.Callback):
     def __init__(self, logs={}):
