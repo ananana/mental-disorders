@@ -2,17 +2,27 @@ from callbacks import FreezeLayer, WeightsHistory, OutputsHistory, LRHistory, Ac
 from tensorflow.keras import callbacks
 from metrics import Metrics
 from comet_ml import Experiment, Optimizer
-
+import logging
 
 def train_model(model, hyperparams,
                 data_generator_train, data_generator_valid,
                 epochs, class_weight, start_epoch=0, workers=4,
-                callback_list = [],
+                callback_list = [], logger=None,
                 
                 model_path='/tmp/model',
                 validation_set='valid',
                verbose=1):
     
+    if not logger:
+      logger = logging.getLogger('training')
+      ch = logging.StreamHandler(sys.stdout)
+      # create formatter
+      formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(message)s")
+      # add formatter to ch
+      ch.setFormatter(formatter)
+      # add ch to logger
+      logger.addHandler(ch)
+      logger.setLevel(logging.DEBUG)
     logger.info("Initializing callbacks...\n")
     # Initialize callbacks
     freeze_layer = FreezeLayer(patience=hyperparams['freeze_patience'], set_to=not hyperparams['trainable_embeddings'])
@@ -130,8 +140,18 @@ def initialize_datasets(user_level_data, subjects_split, hyperparams, hyperparam
     return data_generator_train, data_generator_valid
 
 def initialize_model(hyperparams, hyperparams_features, embedding_matrix, emotions, stopword_list,
-                    liwc_categories, session=None, transfer=False, classes=1):
+                    liwc_categories, logger=None, session=None, transfer=False, classes=1):
 
+    if not logger:
+      logger = logging.getLogger('training')
+      ch = logging.StreamHandler(sys.stdout)
+      # create formatter
+      formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(message)s")
+      # add formatter to ch
+      ch.setFormatter(formatter)
+      # add ch to logger
+      logger.addHandler(ch)
+      logger.setLevel(logging.DEBUG)
     logger.info("Initializing model...\n")
     # Initialize model
     if hyperparams['hierarchical']:
@@ -156,11 +176,22 @@ def initialize_model(hyperparams, hyperparams_features, embedding_matrix, emotio
 def train(user_level_data, subjects_split, 
           hyperparams, hyperparams_features, 
           embedding_matrix, emotions, stopword_list, liwc_categories,
-          experiment, dataset_type, transfer_type,
+          experiment, dataset_type, transfer_type, logger=None,
           validation_set='valid',
           version=0, epochs=50, start_epoch=0,
          session=None, model=None, transfer_layer=False,
          classes=1):
+  if not logger:
+    logger = logging.getLogger('training')
+    ch = logging.StreamHandler(sys.stdout)
+    # create formatter
+    formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(message)s")
+    # add formatter to ch
+    ch.setFormatter(formatter)
+    # add ch to logger
+    logger.addHandler(ch)
+    logger.setLevel(logging.DEBUG)
+
     network_type, hierarch_type = get_network_type(hyperparams)
     for feature in ['LIWC', 'emotions', 'numerical_dense_layer', 'sparse_feat_dense_layer', 'user_encoded']:
         if feature in hyperparams['ignore_layer']:
