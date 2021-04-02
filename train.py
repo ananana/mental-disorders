@@ -63,10 +63,10 @@ def train_model(model, hyperparams,
                        max_queue_size=100,
 
             callbacks = [
-                callbacks.ModelCheckpoint(filepath='%s_best.h5' % model_path, verbose=1, 
-                                          save_best_only=True, save_weights_only=True),
-                callbacks.EarlyStopping(patience=hyperparams['early_stopping_patience'],
-                                       restore_best_weights=True)
+                # callbacks.ModelCheckpoint(filepath='%s_best.h5' % model_path, verbose=1, 
+                #                           save_best_only=True, save_weights_only=True),
+                # callbacks.EarlyStopping(patience=hyperparams['early_stopping_patience'],
+                #                        restore_best_weights=True)
             ] + [
                 callbacks_dict[c] for c in [
                     # 'weights_history', 
