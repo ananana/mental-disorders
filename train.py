@@ -7,9 +7,12 @@ import pickle
 from DataGenerator import DataGenerator
 from model import build_hierarchical_model
 from resource_loading import load_NRC, load_LIWC
-# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0" # Note: when starting kernel, for gpu_available to be true, this needs to be run
 
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1' # When cudnn implementation not found, run this
+os.environ["CUDA_VISIBLE_DEVICES"] = "0" # Note: when starting kernel, for gpu_available to be true, this needs to be run
+# only reserve 1 GPU
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH']='true'
 
 def train_model(model, hyperparams,
                 data_generator_train, data_generator_valid,
