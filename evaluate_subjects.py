@@ -3,13 +3,13 @@ def evaluate_for_subjects(subjects, user_level_data, hyperparams, hyperparams_fe
         alert_threshold=0.5):
     erisk_metricst2 = EriskScoresT1T2()
     threshold = 0.5
-    for subject in set(writings_df[writings_df['subset']=='test'].subject.values):
+    for subject in set(subjects):
 
         try:
             user_level_data_subject = {subject: user_level_data[subject]}
         except:
             continue
-        true_label = writings_df[writings_df['subject']==subject].label.values[0]
+        true_label = user_level_data_subject['label']
        
         print(subject, "Label", true_label)
         predictions = model.predict(DataGenerator(user_level_data_subject, {'test':[subject]}, 
