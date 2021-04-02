@@ -5,7 +5,6 @@ from tensorflow.keras.layers import Dense, Dropout, Embedding, LSTM, Lambda, Bat
 from tensorflow.keras import regularizers
 from tensorflow.keras import optimizers
 from tensorflow.keras import backend as K
-from tensorflow.keras.metrics import Precision, Recall, f1_m
 from tensorflow.metrics import auc
 from metrics import Metrics
 
@@ -152,9 +151,8 @@ def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix
     if classes==1:
         metrics_class = Metrics(threshold=hyperparams['threshold'])
         hierarchical_model.compile(hyperparams['optimizer'], K.binary_crossentropy,
-                      metrics=[
-                      f1_m(), Precision(),
-                      Recall(), auc()])
+                      metrics=[metrics_class.precision_m, metrics_class.recall_m, 
+                      metrics_class.f1_m, auc()])
     else:
         
         hierarchical_model.compile(hyperparams['optimizer'], K.categorical_crossentropy,
