@@ -14,9 +14,9 @@ def load_erisk_data(writings_df, hyperparams_features, by_subset=True,
     vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
     voc_size = hyperparams_features['max_features']
     emotion_lexicon = load_NRC(hyperparams_features['nrc_lexicon_path'])
-    emotions = list(self.emotion_lexicon.keys())
+    emotions = list(emotion_lexicon.keys())
     liwc_dict = load_LIWC(hyperparams_features['liwc_path'])
-    liwc_categories = set(self.liwc_dict.keys())
+    liwc_categories = set(liwc_dict.keys())
    
     training_subjects = list(set(writings_df[writings_df['subset']=='train'].subject))
     test_subjects = list(set(writings_df[writings_df['subset']=='test'].subject))
