@@ -246,7 +246,7 @@ class DataGenerator(Sequence):
        
         self.generated_labels.extend(labels)
 
-        labels = np.array(labels)
+        labels = np.array(labels, dtype=np.float32)
 
         return ((user_tokens, user_categ_data, user_sparse_data), 
                 np.array(subjects),
