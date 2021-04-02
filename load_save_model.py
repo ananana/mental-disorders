@@ -1,6 +1,7 @@
 from metrics import Metrics
 import json
 from tensorflow.keras.models import load_model
+from tensorflow.keras import optimizers
 from train import initialize_model
 def save_model_and_params(model, model_path, hyperparams, hyperparams_features):
     model.save_weights(model_path + "_weights.h5", save_format='h5')
@@ -14,6 +15,8 @@ def load_params(model_path):
         hyperparams = json.loads(hpf.read())
     with open(model_path + '.hpf.json', 'r') as hpff:
         hyperparams_features = json.loads(hpff.read())
+    hyperparams['optimizer'] = optimizers.Adam(lr=hyperparams['lr'], #beta_1=0.9, beta_2=0.999, epsilon=0.0001,
+                                   decay=hyperparams['decay'])
     return hyperparams, hyperparams_features
 
 def load_saved_model(model_path, hyperparams):
