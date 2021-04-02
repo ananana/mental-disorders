@@ -3,6 +3,7 @@ from tensorflow.keras import callbacks
 from metrics import Metrics
 from comet_ml import Experiment, Optimizer
 import logging, sys
+import pickle
 
 def train_model(model, hyperparams,
                 data_generator_train, data_generator_valid,

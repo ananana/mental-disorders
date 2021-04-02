@@ -1,0 +1,52 @@
+{ 
+    "trainable_embeddings": true,
+
+    "lstm_units": 128,
+    
+    "dense_bow_units": 20,
+    "dense_sentence_units": 0,
+    "dense_numerical_units": 20,
+
+    
+    "filters": 100,
+    "kernel_size": 5,
+    
+    "lstm_units_user": 32,
+    "dense_user_units": 0,
+    
+    "filters_user": 10,
+    "kernel_size_user": 3,
+ 
+    "transfer_units": 20,
+
+    "dropout": 0.1,
+    "l2_dense": 0.00011,
+    "l2_embeddings": 0.0000001,
+    "l2_bert": 0.0001,
+    "norm_momentum": 0.1,
+    
+    "ignore_layer": ["bert_layer"
+                    ],
+
+    "decay": 0.001,
+    "lr": 0.00005,
+    "reduce_lr_factor": 0.5,
+    "reduce_lr_patience": 55,
+    "scheduled_reduce_lr_freq": 95,
+    "scheduled_reduce_lr_factor": 0.5,
+    "freeze_patience": 2000,
+    "threshold": 0.5,
+    "early_stopping_patience": 5,
+ 
+    "positive_class_weight": 2,
+
+    "maxlen": 256,
+    "posts_per_user": 0,
+    "post_groups_per_user": 0,
+    "posts_per_group": 50,
+    "batch_size": 32,
+    "padding": "pre",
+    "hierarchical": true,
+    "sample_seqs": false,
+    "sampling_distr": "exp",
+}

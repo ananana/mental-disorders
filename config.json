@@ -1,0 +1,8 @@
+{
+    "max_features": 20002,
+    "embedding_dim": 300,
+    "vocabulary_path": "data/all_vocab_clpsych_erisk_stop_20000.pkl",
+    "embeddings_path": "resources/glove.840B/glove.840B.300d.txt",
+    "liwc_words_cached": "data/liwc_categories_for_vocabulary_erisk_clpsych_stop_20K.pkl",
+    "pretrained_model_path": "models/lstm_symanto_hierarchical64"
+}
