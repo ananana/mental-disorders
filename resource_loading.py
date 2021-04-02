@@ -1,4 +1,5 @@
 from liwc_readDict import readDict
+import pickle
 
 def load_NRC(nrc_path):
     word_emotions = {}
@@ -26,3 +27,10 @@ def load_LIWC(path):
             liwc_dict[c] = []
         liwc_dict[c].append(w)
     return liwc_dict
+
+def load_vocabulary(path):
+    vocabulary_list = pickle.load(open(path, 'rb'))
+    vocabulary_dict={}
+    for i,w in enumerate(vocabulary_list):
+        vocabulary_dict[w] = i
+    return vocabulary_dict

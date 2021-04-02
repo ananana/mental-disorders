@@ -1,13 +1,14 @@
 from tensorflow.keras.utils import Sequence
 import numpy as np
+import pickle
+from resource_loading import load_NRC, load_LIWC, load_vocabulary
 
 class DataGenerator(Sequence):
     'Generates data for Keras'
     def __init__(self, user_level_data, subjects_split, set_type,
-                 batch_size, seq_len, vocabulary,
-                 voc_size, emotion_lexicon, emotions, liwc_categories,
-                 liwc_dict, compute_liwc=False, liwc_words_for_categories=None,
-                  
+                hyperparams_features,
+                 batch_size, seq_len, 
+                 compute_liwc=False,
                  post_groups_per_user=None, posts_per_group=10, post_offset = 0,
                  max_posts_per_user=None, 
                  pronouns=["i", "me", "my", "mine", "myself"], 
@@ -19,24 +20,26 @@ class DataGenerator(Sequence):
         
         self.subjects_split = subjects_split
         self.set = set_type
-        self.emotion_lexicon = emotion_lexicon
         self.batch_size = batch_size
         self.data = user_level_data
-        self.emotions = emotions
         self.pronouns = pronouns
-        self.liwc_categories = liwc_categories
-        self.liwc_dict = liwc_dict
-        self.liwc_words_for_categories = liwc_words_for_categories
         self.compute_liwc = compute_liwc
         self.keep_last_batch = keep_last_batch
         self.shuffle = shuffle
-        self.voc_size = voc_size
-        self.vocabulary = vocabulary
         self.max_posts_per_user = max_posts_per_user
         self.post_groups_per_user = post_groups_per_user
         self.post_offset = post_offset
         self.posts_per_group = posts_per_group
         self.generated_labels = []
+
+        self.vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
+        self.voc_size = hyperparams_features['max_features']
+        self.emotion_lexicon = load_NRC(hyperparams_features['nrc_lexicon_path'])
+        self.emotions = list(nrc_lexicon.keys())
+        self.liwc_dict = load_LIWC(hyperparams_features['liwc_path'])
+        self.liwc_categories = set(liwc_dict.keys())
+        self.liwc_words_for_categories = pickle.load(open(hyperparams_features["liwc_words_cached"], "rb"))
+
         self.__post_indexes_per_user()
         self.on_epoch_end()
         
