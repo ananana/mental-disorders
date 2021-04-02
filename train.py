@@ -6,6 +6,7 @@ import logging, sys
 import pickle
 from DataGenerator import DataGenerator
 from model import build_hierarchical_model
+from resource_loading import load_NRC, load_LIWC
 
 def train_model(model, hyperparams,
                 data_generator_train, data_generator_valid,
@@ -30,9 +31,7 @@ def train_model(model, hyperparams,
     # Initialize callbacks
     freeze_layer = FreezeLayer(patience=hyperparams['freeze_patience'], set_to=not hyperparams['trainable_embeddings'])
     weights_history = WeightsHistory()
-    outputs_history_valid = OutputsHistory(generator_type=validation_set)
-    outputs_history_train = OutputsHistory(generator_type='train')
-    activations_history_train = ActivationsAttention(generator_type='train')
+    
     lr_history = LRHistory()
 
     reduce_lr = callbacks.ReduceLROnPlateau(monitor='val_loss', factor=hyperparams['reduce_lr_factor'],
@@ -41,9 +40,7 @@ def train_model(model, hyperparams,
                                                   lr if (epoch+1)%hyperparams['scheduled_reduce_lr_freq']!=0 else
                                                   lr*hyperparams['scheduled_reduce_lr_factor'], verbose=1)
     callbacks_dict = {'freeze_layer': freeze_layer, 'weights_history': weights_history,
-           'outputs_history_valid': outputs_history_valid, 'outputs_history_train': outputs_history_train,
            'lr_history': lr_history,
-            'activations': activations_history_train,
            'reduce_lr_plateau': reduce_lr,
             'lr_schedule': lr_schedule}
 
@@ -62,16 +59,11 @@ def train_model(model, hyperparams,
             callbacks = [
                 callbacks.ModelCheckpoint(filepath='%s_best.h5' % model_path, verbose=1, 
                                           save_best_only=True, save_weights_only=True),
-#                 callbacks.EarlyStopping(patience=hyperparams['early_stopping_patience'],
-#                                        restore_best_weights=True)
+                callbacks.EarlyStopping(patience=hyperparams['early_stopping_patience'],
+                                       restore_best_weights=True)
             ] + [
                 callbacks_dict[c] for c in [
-#                     'weights_history', 
-                    'outputs_history_valid', 
-#                     'outputs_history_train', 
-#                     'reduce_lr_plateau', 
-#                     'lr_schedule', 
-#                     'activations'
+                    'weights_history', 
                 ]])
     return model, history
 
@@ -113,7 +105,7 @@ def initialize_experiment(hyperparams, nrc_lexicon_path, emotions, pretrained_em
     return experiment
     
 def initialize_datasets(user_level_data, subjects_split, hyperparams, hyperparams_features, 
-                        validation_set, emotions, liwc_categories, session=None, classes=1):
+                        validation_set, session=None, classes=1):
     liwc_words_for_categories = pickle.load(open(hyperparams_features['liwc_words_cached'], 'rb'))
     if classes!=1 and 'class_weights' in hyperparams:
         class_weights = hyperparams['class_weights']
@@ -124,7 +116,9 @@ def initialize_datasets(user_level_data, subjects_split, hyperparams, hyperparam
                                         seq_len=hyperparams['maxlen'], batch_size=hyperparams['batch_size'],
                                         posts_per_group=hyperparams['posts_per_group'], post_groups_per_user=hyperparams['post_groups_per_user'],
                                         max_posts_per_user=hyperparams['posts_per_user'], 
-                                         compute_liwc=True)
+                                         compute_liwc=True,
+                                         ablate_emotions='emotions' in hyperparams['ignore_layer'],
+                                         ablate_liwc='liwc' in hyperparams['ignore_layer'])
     data_generator_valid = DataGenerator(user_level_data, subjects_split, set_type=validation_set,
                                             hyperparams_features=hyperparams_features,
                                         seq_len=hyperparams['maxlen'], batch_size=hyperparams['batch_size'],
@@ -132,12 +126,14 @@ def initialize_datasets(user_level_data, subjects_split, hyperparams, hyperparam
                                          post_groups_per_user=1,
                                         max_posts_per_user=None, 
                                         shuffle=False,
-                                         compute_liwc=True)
+                                         compute_liwc=True,
+                                         ablate_emotions='emotions' in hyperparams['ignore_layer'],
+                                         ablate_liwc='liwc' in hyperparams['ignore_layer'])
 
     return data_generator_train, data_generator_valid
 
-def initialize_model(hyperparams, hyperparams_features, embedding_matrix, emotions, stopword_list,
-                    liwc_categories, logger=None, session=None, transfer=False, classes=1):
+def initialize_model(hyperparams, hyperparams_features, embedding_matrix, stopwords_dim,
+              logger=None, session=None, transfer=False, classes=1):
 
     if not logger:
       logger = logging.getLogger('training')
@@ -150,29 +146,31 @@ def initialize_model(hyperparams, hyperparams_features, embedding_matrix, emotio
       logger.addHandler(ch)
       logger.setLevel(logging.DEBUG)
     logger.info("Initializing model...\n")
-    # Initialize model
-    if hyperparams['hierarchical']:
-        model = build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, 
-                                         emotions, stopword_list, liwc_categories,
-                       ignore_layer=hyperparams['ignore_layer'], classes=classes)
+    if 'emotions' in hyperparams['ignore_layer']:
+      emotions_dim = 0
     else:
-        model = build_model(hyperparams, hyperparams_features, embedding_matrix, 
-                                        emotions, stopword_list, liwc_categories,
+      emotions = load_NRC(hyperparams_features['nrc_lexicon_path'])
+      emotions_dim = len(emotions)
+    if 'liwc' in hyperparams['ignore_layer']:
+      liwc_categories_dim = 0
+    else:
+      liwc_categories = load_LIWC(hyperparams_features['liwc_path'])
+      liwc_categories_dim = len(liwc_categories)
+    if 'stopwords' in hyperparams['ignore_layer']:
+      stopwords_list_dim = 0
+    else:
+      stopwords_list_dim = stopwords_dim
+    # Initialize model
+    model = build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, 
+                                         emotions_dim, stopword_list_dim, liwc_categories_dim,
                        ignore_layer=hyperparams['ignore_layer'], classes=classes)
-    if transfer:
-        model = build_tl_model(hyperparams, hyperparams_features, embedding_matrix, 
-                                        emotions, stopword_list, liwc_categories,
-                       ignore_layer=hyperparams['ignore_layer'])
-        model.load_weights(hyperparams_features['pretrained_model_path'] + '_weights.h5', by_name=True)
-    # Needed just for bert
-    if 'bert_layer' not in hyperparams['ignore_layer']:
-        initialize_sess(session)                  
+   
     model.summary()
     return model
 
 def train(user_level_data, subjects_split, 
           hyperparams, hyperparams_features, 
-          embedding_matrix, emotions, stopword_list, liwc_categories,
+          embedding_matrix, 
           experiment, dataset_type, transfer_type, logger=None,
           validation_set='valid',
           version=0, epochs=50, start_epoch=0,
@@ -198,26 +196,20 @@ def train(user_level_data, subjects_split,
     else:
         model_path='models/%s_%s_%s_transfer_%s%d' % (network_type, dataset_type, hierarch_type, transfer_type, version)
         
-    
-    # Ablate emotions or LIWC
-    if 'emotions' in hyperparams['ignore_layer']:
-        emotions = []
-    if 'LIWC' in hyperparams['ignore_layer']:
-        liwc_categories = []
 
     logger.info("Initializing datasets...\n")
     data_generator_train, data_generator_valid = initialize_datasets(user_level_data, subjects_split, 
                                                                      hyperparams,hyperparams_features,
                                                                      validation_set=validation_set,
-                                                                     emotions=emotions, liwc_categories=liwc_categories, 
-                                                                    session=session, classes=classes)
+                                                                     classes=classes)
     if not model:
         if transfer_layer:
             logger.info("Initializing pretrained model...\n")
         else:
             logger.info("Initializing model...\n")
         model = initialize_model(hyperparams, hyperparams_features, embedding_matrix, 
-                                 emotions, stopword_list, liwc_categories, session=session, transfer=transfer_layer,
+                                stopwords_dim = stopwords_dim,
+                                 session=session, transfer=transfer_layer,
                                 classes=classes)
 
        

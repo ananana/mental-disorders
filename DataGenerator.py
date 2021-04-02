@@ -13,7 +13,8 @@ class DataGenerator(Sequence):
                  max_posts_per_user=None, 
                  pronouns=["i", "me", "my", "mine", "myself"], 
                  shuffle=True, 
-                 keep_last_batch=True):
+                 keep_last_batch=True,
+                 ablate_emotions=False, ablate_liwc=False):
         'Initialization'
         self.seq_len = seq_len
         # Instantiate tokenizer
@@ -34,11 +35,17 @@ class DataGenerator(Sequence):
 
         self.vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
         self.voc_size = hyperparams_features['max_features']
-        self.emotion_lexicon = load_NRC(hyperparams_features['nrc_lexicon_path'])
-        self.emotions = list(self.emotion_lexicon.keys())
+        if ablate_emotions:
+            self.emotions = []
+        else:
+            self.emotion_lexicon = load_NRC(hyperparams_features['nrc_lexicon_path'])
+            self.emotions = list(self.emotion_lexicon.keys())
         self.liwc_dict = load_LIWC(hyperparams_features['liwc_path'])
-        self.liwc_categories = set(self.liwc_dict.keys())
         self.liwc_words_for_categories = pickle.load(open(hyperparams_features["liwc_words_cached"], "rb"))
+        if ablate_liwc:
+            self.liwc_categories = []
+        else:
+            self.liwc_categories = set(self.liwc_dict.keys())
 
         self.__post_indexes_per_user()
         self.on_epoch_end()

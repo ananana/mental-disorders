@@ -8,8 +8,8 @@ from tensorflow.keras import backend as K
 from tensorflow.metrics import auc
 from metrics import Metrics
 
-def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, emotions, stopwords_list,
-                liwc_categories,
+def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, 
+                emotions_dim, stopwords_list_dim, liwc_categories_dim,
                ignore_layer=[], activations=None, classes=1):
 
     # Post/sentence representation - word sequence
@@ -52,11 +52,11 @@ def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix
     # Other features 
     numerical_features_history = Input(shape=(
             hyperparams['posts_per_group'],
-            len(emotions) + 1 + len(liwc_categories)
+            emotions_dim + 1 + liwc_categories_dim
         ), name='numeric_input_hist') # emotions and pronouns
     sparse_features_history = Input(shape=(
             hyperparams['posts_per_group'],
-            len(stopwords_list)
+            stopwords_list_dim
         ), name='sparse_input_hist') # stopwords
 
     posts_history_input = Input(shape=(hyperparams['posts_per_group'], 
