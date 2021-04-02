@@ -135,7 +135,7 @@ def initialize_datasets(user_level_data, subjects_split, hyperparams, hyperparam
 
     return data_generator_train, data_generator_valid
 
-def initialize_model(hyperparams, hyperparams_features, embedding_matrix, stopwords_dim,
+def initialize_model(hyperparams, hyperparams_features, stopwords_dim,
               logger=None, session=None, transfer=False):
 
     if not logger:
@@ -172,7 +172,7 @@ def initialize_model(hyperparams, hyperparams_features, embedding_matrix, stopwo
 
 def train(user_level_data, subjects_split, 
           hyperparams, hyperparams_features, 
-          embedding_matrix, stopwords_dim,
+          stopwords_dim,
           experiment, dataset_type, transfer_type, logger=None,
           validation_set='valid',
           version=0, epochs=50, start_epoch=0,
@@ -207,7 +207,7 @@ def train(user_level_data, subjects_split,
             logger.info("Initializing pretrained model...\n")
         else:
             logger.info("Initializing model...\n")
-        model = initialize_model(hyperparams, hyperparams_features, embedding_matrix, 
+        model = initialize_model(hyperparams, hyperparams_features,
                                 stopwords_dim = stopwords_dim,
                                  session=session, transfer=transfer_layer)
 
