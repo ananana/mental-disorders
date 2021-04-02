@@ -157,12 +157,11 @@ def initialize_model(hyperparams, hyperparams_features, embedding_matrix, stopwo
       liwc_categories = load_LIWC(hyperparams_features['liwc_path'])
       liwc_categories_dim = len(liwc_categories)
     if 'stopwords' in hyperparams['ignore_layer']:
-      stopwords_list_dim = 0
-    else:
-      stopwords_list_dim = stopwords_dim
+      stopwords_dim = 0
+    
     # Initialize model
     model = build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, 
-                                         emotions_dim, stopword_list_dim, liwc_categories_dim,
+                                         emotions_dim, stopwords_dim, liwc_categories_dim,
                        ignore_layer=hyperparams['ignore_layer'], classes=classes)
    
     model.summary()
