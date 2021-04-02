@@ -25,6 +25,7 @@ def evaluate_for_subjects(model, subjects, user_level_data, hyperparams, hyperpa
                                              shuffle=False), verbose=1)
         predictions = [p[0] for p in predictions]
         if rolling_window:
+            rolling_predictions = []
             # The first predictions will be copied
             rolling_predictions[:rolling_window-1] = predictions[:rolling_window-1]
             # rolling average over predictions
