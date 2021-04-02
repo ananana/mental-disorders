@@ -8,12 +8,9 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.metrics import AUC
 from metrics import Metrics
 
-import multiprocessing as mp
-mp.set_start_method('spawn', force=True)
-
 def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, 
                 emotions_dim, stopwords_list_dim, liwc_categories_dim,
-               ignore_layer=[], activations=None, classes=1):
+               ignore_layer=[]):
 
     # Post/sentence representation - word sequence
     tokens_features = Input(shape=(hyperparams['maxlen'],), name='word_seq')
@@ -136,7 +133,7 @@ def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix
         user_representation = Dense(units=hyperparams['dense_user_units'], activation='relu',
                                    name='dense_user_representation')(user_representation)
 
-    output_layer = Dense(classes, activation='sigmoid' if classes==1 else 'softmax',
+    output_layer = Dense(1, activation='sigmoid',
                          name='output_layer',
                         kernel_regularizer=regularizers.l2(hyperparams['l2_dense'])
                         )(user_representation)
@@ -148,15 +145,9 @@ def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix
                   outputs=output_layer)
  
     
-    if classes==1:
-        metrics_class = Metrics(threshold=hyperparams['threshold'])
-        hierarchical_model.compile(hyperparams['optimizer'], K.binary_crossentropy,
-                      metrics=[metrics_class.precision_m, metrics_class.recall_m, 
-                      metrics_class.f1_m, AUC()])
-    else:
-        
-        hierarchical_model.compile(hyperparams['optimizer'], K.categorical_crossentropy,
-                     metrics=[ tf.keras.metrics.CategoricalAccuracy(name='cat_acc'),
-#                              tf.keras.metrics.Precision(name='prec'), tf.keras.metrics.Recall(name='rec'), 
-                              ])
+    metrics_class = Metrics(threshold=hyperparams['threshold'])
+    hierarchical_model.compile(hyperparams['optimizer'], K.binary_crossentropy,
+                  metrics=[metrics_class.precision_m, metrics_class.recall_m, 
+                  metrics_class.f1_m, AUC()])
+  
     return hierarchical_model

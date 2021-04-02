@@ -111,12 +111,9 @@ def initialize_experiment(hyperparams, nrc_lexicon_path, emotions, pretrained_em
     return experiment
     
 def initialize_datasets(user_level_data, subjects_split, hyperparams, hyperparams_features, 
-                        validation_set, session=None, classes=1):
+                        validation_set, session=None):
     liwc_words_for_categories = pickle.load(open(hyperparams_features['liwc_words_cached'], 'rb'))
-    if classes!=1 and 'class_weights' in hyperparams:
-        class_weights = hyperparams['class_weights']
-    else:
-        class_weights = None
+
     data_generator_train = DataGenerator(user_level_data, subjects_split, set_type='train',
                                         hyperparams_features=hyperparams_features,
                                         seq_len=hyperparams['maxlen'], batch_size=hyperparams['batch_size'],
@@ -139,7 +136,7 @@ def initialize_datasets(user_level_data, subjects_split, hyperparams, hyperparam
     return data_generator_train, data_generator_valid
 
 def initialize_model(hyperparams, hyperparams_features, embedding_matrix, stopwords_dim,
-              logger=None, session=None, transfer=False, classes=1):
+              logger=None, session=None, transfer=False):
 
     if not logger:
       logger = logging.getLogger('training')
@@ -168,7 +165,7 @@ def initialize_model(hyperparams, hyperparams_features, embedding_matrix, stopwo
     # Initialize model
     model = build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix, 
                                          emotions_dim, stopwords_dim, liwc_categories_dim,
-                       ignore_layer=hyperparams['ignore_layer'], classes=classes)
+                       ignore_layer=hyperparams['ignore_layer'])
    
     model.summary()
     return model
@@ -179,8 +176,7 @@ def train(user_level_data, subjects_split,
           experiment, dataset_type, transfer_type, logger=None,
           validation_set='valid',
           version=0, epochs=50, start_epoch=0,
-         session=None, model=None, transfer_layer=False,
-         classes=1):
+         session=None, model=None, transfer_layer=False):
   if not logger:
     logger = logging.getLogger('training')
     ch = logging.StreamHandler(sys.stdout)
@@ -205,8 +201,7 @@ def train(user_level_data, subjects_split,
     logger.info("Initializing datasets...\n")
     data_generator_train, data_generator_valid = initialize_datasets(user_level_data, subjects_split, 
                                                                      hyperparams,hyperparams_features,
-                                                                     validation_set=validation_set,
-                                                                     classes=classes)
+                                                                     validation_set=validation_set)
     if not model:
         if transfer_layer:
             logger.info("Initializing pretrained model...\n")
@@ -214,8 +209,7 @@ def train(user_level_data, subjects_split,
             logger.info("Initializing model...\n")
         model = initialize_model(hyperparams, hyperparams_features, embedding_matrix, 
                                 stopwords_dim = stopwords_dim,
-                                 session=session, transfer=transfer_layer,
-                                classes=classes)
+                                 session=session, transfer=transfer_layer)
 
        
     print(model_path)
@@ -223,7 +217,7 @@ def train(user_level_data, subjects_split,
     model, history = train_model(model, hyperparams,
                                  data_generator_train, data_generator_valid,
                        epochs=epochs, start_epoch=start_epoch,
-                      class_weight={0:1, 1:hyperparams['positive_class_weight']} if classes==1 else None,
+                      class_weight={0:1, 1:hyperparams['positive_class_weight']},
                       callback_list = [
                           'weights_history',
                           'lr_history',
