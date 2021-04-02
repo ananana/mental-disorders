@@ -63,7 +63,7 @@ def train_model(model, hyperparams,
                                        restore_best_weights=True)
             ] + [
                 callbacks_dict[c] for c in [
-                    'weights_history', 
+                    # 'weights_history', 
                 ]])
     return model, history
 
@@ -221,8 +221,6 @@ def train(user_level_data, subjects_split,
                       callback_list = [
                           'weights_history',
                           'lr_history',
-                          'outputs_history_valid',
-                          'outputs_history_train',
                           'reduce_lr_plateau',
                           'lr_schedule'
                                       ],
