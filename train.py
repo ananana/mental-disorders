@@ -224,7 +224,7 @@ def train(user_level_data, subjects_split,
                           'reduce_lr_plateau',
                           'lr_schedule'
                                       ],
-                      model_path=model_path, workers=4,
+                      model_path=model_path, workers=1, use_multiprocessing=False 
                                 validation_set=validation_set)
     logger.info("Saving model...\n")
     try:
