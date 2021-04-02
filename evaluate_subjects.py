@@ -1,8 +1,9 @@
 from metrics_decision_based import EriskScoresT1T2
 from DataGenerator import DataGenerator
+import numpy as np
 
 def evaluate_for_subjects(model, subjects, user_level_data, hyperparams, hyperparams_features,
-        alert_threshold=0.5):
+        alert_threshold=0.5, rolling_window=0):
     erisk_metricst2 = EriskScoresT1T2()
     threshold = alert_threshold
     for subject in set(subjects):
@@ -22,8 +23,16 @@ def evaluate_for_subjects(model, subjects, user_level_data, hyperparams, hyperpa
                                             posts_per_group=hyperparams['posts_per_group'],
                                             post_groups_per_user=None,  compute_liwc=True,
                                              shuffle=False), verbose=1)
+        predictions = [p[0] for p in predictions]
+        if rolling_window:
+            # The first predictions will be copied
+            rolling_predictions[:rolling_window-1] = predictions[:rolling_window-1]
+            # rolling average over predictions
+            rolling_predictions.extend(np.convolve(predictions, np.ones(rolling_window), 'valid') / rolling_window)
+            predictions = rolling_predictions
         for prediction in predictions:
-            model_prediction = int(prediction[0]>=threshold)
+
+            model_prediction = int(prediction>=threshold)
 
             print("Prediction: ", prediction, model_prediction)
 
