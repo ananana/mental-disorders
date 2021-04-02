@@ -1,24 +1,22 @@
 from collections import Counter
 import numpy as np
-def load_erisk_data(writings_df, voc_size, emotion_lexicon, emotions,
-                    liwc_categories, by_subset=True,
+from resource_loading import load_NRC, load_LIWC, load_vocabulary
+
+def load_erisk_data(writings_df, hyperparams_features, by_subset=True,
                     pronouns = ["i", "me", "my", "mine", "myself"],
                     train_prop=0.7, valid_prop=0.3, test_slice=2,
                     nr_slices=5,
                     min_post_len=3, min_word_len=1, 
-                    user_level=True, vocabulary=None, labelcol='label', label_index=None,
+                    user_level=True, labelcol='label', label_index=None,
                    logger=None):
 #     logger.debug("Loading data...\n")
     
-    ## Build vocabulary
-    vocabulary_all = {}
-    word_freqs = Counter()
-    
-    for words in writings_df.tokenized_text:
-        word_freqs.update(words)
-    for words in writings_df.tokenized_title:
-        word_freqs.update(words)
-    i = 1
+    vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
+    voc_size = hyperparams_features['max_features']
+    emotion_lexicon = load_NRC(hyperparams_features['nrc_lexicon_path'])
+    emotions = list(self.emotion_lexicon.keys())
+    liwc_dict = load_LIWC(hyperparams_features['liwc_path'])
+    liwc_categories = set(self.liwc_dict.keys())
    
     training_subjects = list(set(writings_df[writings_df['subset']=='train'].subject))
     test_subjects = list(set(writings_df[writings_df['subset']=='test'].subject))
