@@ -1,5 +1,5 @@
 from metrics_decision_based import EriskScoresT1T2
-def evaluate_for_subjects(subjects, user_level_data, hyperparams, hyperparams_features,
+def evaluate_for_subjects(model, subjects, user_level_data, hyperparams, hyperparams_features,
         alert_threshold=0.5):
     erisk_metricst2 = EriskScoresT1T2()
     threshold = alert_threshold
