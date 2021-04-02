@@ -38,7 +38,7 @@ def load_vocabulary(path):
 
 def load_embeddings(path, embedding_dim, vocabulary_path, voc_size):
     # random matrix with mean value = 0
-    vocabulary = load_vocabulary(vocabulary_path)
+    voc = load_vocabulary(vocabulary_path)
     embedding_matrix = np.random.random((len(voc)+2, embedding_dim)) - 0.5 # voc + unk + pad value(0)
     cnt_inv = 0
     f = open(path, encoding='utf8')
