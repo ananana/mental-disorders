@@ -275,7 +275,9 @@ def build_hierarchical_model(hyperparams, hyperparams_features, embedding_matrix
     if classes==1:
         metrics_class = Metrics(threshold=hyperparams['threshold'])
         hierarchical_model.compile(hyperparams['optimizer'], K.binary_crossentropy,
-                      metrics=['f1_m', 'precision_m', 'recall_m', 'auc'])
+                      metrics=[
+                      tf.keras.metrics.f1_m(), tf.keras.metrics.Precision(),
+                      tf.keras.metrics.Recall(), tf.metrics.auc()])
     else:
         
         hierarchical_model.compile(hyperparams['optimizer'], K.categorical_crossentropy,
