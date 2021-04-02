@@ -48,5 +48,5 @@
     "padding": "pre",
     "hierarchical": true,
     "sample_seqs": false,
-    "sampling_distr": "exp",
+    "sampling_distr": "exp"
 }
