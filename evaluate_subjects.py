@@ -9,7 +9,7 @@ def evaluate_for_subjects(subjects, user_level_data, hyperparams, hyperparams_fe
             user_level_data_subject = {subject: user_level_data[subject]}
         except:
             continue
-        true_label = user_level_data_subject['label']
+        true_label = user_level_data_subject[subject]['label']
        
         print(subject, "Label", true_label)
         predictions = model.predict(DataGenerator(user_level_data_subject, {'test':[subject]}, 
