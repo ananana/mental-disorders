@@ -62,6 +62,7 @@ def train_model(model, hyperparams,
                         verbose=verbose,
 #               validation_split=0.3,
                        workers=workers,
+                       use_multiprocessing=False,
             callbacks = [
                 callbacks.ModelCheckpoint(filepath='%s_best.h5' % model_path, verbose=1, 
                                           save_best_only=True, save_weights_only=True),
@@ -230,7 +231,7 @@ def train(user_level_data, subjects_split,
                           'reduce_lr_plateau',
                           'lr_schedule'
                                       ],
-                      model_path=model_path, workers=1, use_multiprocessing=False,
+                      model_path=model_path, workers=1,
                                 validation_set=validation_set)
     logger.info("Saving model...\n")
     try:
