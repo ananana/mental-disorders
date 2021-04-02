@@ -36,7 +36,7 @@ def encode_pronouns(tokens, pronouns={"i", "me", "my", "mine", "myself"}, relati
 def encode_stopwords(tokens, stopwords_list=None):
     if not stopwords_list:
         stopwords_list = stopwords.words("english") 
-    encoded_stopwords = [0 for s in stopword_list]
+    encoded_stopwords = [0 for s in stopwords_list]
     if not tokens:
         return encoded_stopwords
     for i, stopword in enumerate(stopwords):
