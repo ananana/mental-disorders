@@ -2,11 +2,17 @@ from callbacks import FreezeLayer, WeightsHistory,LRHistory
 from tensorflow.keras import callbacks
 from metrics import Metrics
 from comet_ml import Experiment, Optimizer
-import logging, sys
+import logging, sys, os
 import pickle
 from DataGenerator import DataGenerator
 from model import build_hierarchical_model
 from resource_loading import load_NRC, load_LIWC
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1' # When cudnn implementation not found, run this
+os.environ["CUDA_VISIBLE_DEVICES"] = "0" # Note: when starting kernel, for gpu_available to be true, this needs to be run
+# only reserve 1 GPU
+os.environ['TF_KERAS'] = '1'
+
 
 def train_model(model, hyperparams,
                 data_generator_train, data_generator_valid,
@@ -224,7 +230,7 @@ def train(user_level_data, subjects_split,
                           'reduce_lr_plateau',
                           'lr_schedule'
                                       ],
-                      model_path=model_path, workers=1, use_multiprocessing=False 
+                      model_path=model_path, workers=1, use_multiprocessing=False,
                                 validation_set=validation_set)
     logger.info("Saving model...\n")
     try:
