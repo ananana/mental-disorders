@@ -1,3 +1,4 @@
+from nltk.corpus import stopwords
 def encode_emotions(tokens, emotion_lexicon, emotions, relative=True):
     text_len = len(tokens)
     encoded_emotions = [0 for e in emotions]
@@ -32,7 +33,9 @@ def encode_pronouns(tokens, pronouns={"i", "me", "my", "mine", "myself"}, relati
     else:
         return nr_pronouns
 
-def encode_stopwords(tokens, stopwords):
+def encode_stopwords(tokens, stopwords_list=None):
+    if not stopwords_list:
+        stopwords_list = stopwords.words("english") 
     encoded_stopwords = [0 for s in stopword_list]
     if not tokens:
         return encoded_stopwords
