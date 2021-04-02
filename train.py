@@ -5,6 +5,7 @@ from comet_ml import Experiment, Optimizer
 import logging, sys
 import pickle
 from DataGenerator import DataGenerator
+from model import build_hierarchical_model
 
 def train_model(model, hyperparams,
                 data_generator_train, data_generator_valid,
