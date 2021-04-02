@@ -173,10 +173,7 @@ class DataGenerator(Sequence):
             liwc_scores = []
             
             if 'label' in self.data[subject]:
-                if self.classes==1:
-                    label = self.data[subject]['label']
-                else:
-                    label = list(np_utils.to_categorical(self.data[subject]['label'], num_classes=self.classes))
+                label = self.data[subject]['label']
             else:
                 label = None
 
