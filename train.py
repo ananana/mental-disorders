@@ -170,7 +170,7 @@ def initialize_model(hyperparams, hyperparams_features, embedding_matrix, stopwo
 
 def train(user_level_data, subjects_split, 
           hyperparams, hyperparams_features, 
-          embedding_matrix, 
+          embedding_matrix, stopwords_dim,
           experiment, dataset_type, transfer_type, logger=None,
           validation_set='valid',
           version=0, epochs=50, start_epoch=0,
