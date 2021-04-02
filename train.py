@@ -7,17 +7,13 @@ import pickle
 from DataGenerator import DataGenerator
 from model import build_hierarchical_model
 from resource_loading import load_NRC, load_LIWC
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0" # Note: when starting kernel, for gpu_available to be true, this needs to be run
-# only reserve 1 GPU
-os.environ['TF_KERAS'] = '1'
-from keras.backend import manual_variable_initialization 
-manual_variable_initialization(True)
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0" # Note: when starting kernel, for gpu_available to be true, this needs to be run
 
 
 def train_model(model, hyperparams,
                 data_generator_train, data_generator_valid,
-                epochs, class_weight, start_epoch=0, workers=4,
+                epochs, class_weight, start_epoch=0, workers=1,
                 callback_list = [], logger=None,
                 
                 model_path='/tmp/model',
@@ -64,6 +60,8 @@ def train_model(model, hyperparams,
 #               validation_split=0.3,
                        workers=workers,
                        use_multiprocessing=False,
+                       max_queue_size=100,
+
             callbacks = [
                 callbacks.ModelCheckpoint(filepath='%s_best.h5' % model_path, verbose=1, 
                                           save_best_only=True, save_weights_only=True),
