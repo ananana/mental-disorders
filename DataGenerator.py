@@ -2,7 +2,7 @@ from tensorflow.keras.utils import Sequence
 import numpy as np
 import pickle
 from resource_loading import load_NRC, load_LIWC, load_vocabulary
-
+from feature_encoders import encoded_liwc, encoded_emotions, encoded_pronouns, encoded_stopwords
 class DataGenerator(Sequence):
     'Generates data for Keras'
     def __init__(self, user_level_data, subjects_split, set_type,
