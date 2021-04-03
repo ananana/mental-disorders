@@ -16,7 +16,7 @@ def predict(run_nr):
     with open('config.json') as f:
         config = json.load(f)
     stopwords_list = load_stopwords(config['stopwords_list'])
-    model = load_saved_model_weights(model_path, hyperparams, hyperparams_features, 
+    model = load_saved_model_weights(model_path, hyperparams, config, 
                                                       stopwords_dim=len(stopwords_list),
                                                       h5=True)
 
