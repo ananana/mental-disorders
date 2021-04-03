@@ -3,15 +3,32 @@ from resource_loading import load_stopwords
 import json
 from EriskDataGenerator import EriskDataGenerator
 
-def predict(run_nr):
-    model_paths = {
+RUNS_MODEL_PATHS = {
         1: 'models/lstm_selfharm_hierarchical107',    # 80 posts per chunk, trained on self-harm
         2: 'models/lstm_selfharm_hierarchical113',    # 10 posts per chunk, trained on self-harm
-        3: 'models/lstm_selfharm_hierarchical113',
+        3: 'models/lstm_selfharm_hierarchical113',    # 10 posts per chunk, trained on self-harm, rolling average predictions
         # 4: 'models/lstm_selfharm_hierarchical107'     # 10 posts per chunk, pre-trained on eRisk
                                                       # depression+anorexia, trained on eRisk self-harm
     }
-    model_path = model_paths[run_nr]
+
+def predict(run_nr, data_rounds):
+    """
+    Expects a run_nr corresponding to the solution to be used for generating predictions.
+    Solutions correspond to the ones described in the PDF document - more details on their
+    implementation and performance are found there.
+    Every solution uses a different trained model, or a different strategy for generating
+    predictions.
+    
+    Parameters:
+    run_nr: integer representing the solution/run to be used
+    data_rounds: a list of dictionaries containing data corresponding to one post / one round
+                in the stream, in the format used by the eRisk server
+    
+    Returns:
+    a list of predictions (0/1)
+    """
+    
+    model_path = RUNS_MODEL_PATHS[run_nr]
     hyperparams, hyperparams_features = load_params(model_path)
 
     model = load_saved_model_weights(model_path, hyperparams, hyperparams_features, 
@@ -25,7 +42,17 @@ def predict(run_nr):
                                     shuffle=False,
                                             compute_liwc=True)
 
-    # Reading eRisk data
+    data_generator.add_data_round(data_round1)
+    data_generator.add_data_round(data_round2)
+
+    predictions = model.predict(generator)
+
+    # TODO: add rolling average
+    # TODO: emit zeros if number of datapoints is too small
+    return predictions
+
+if __name__=='__main__':
+        # Reading eRisk data
     data_round1 = {
     "redditor": 338, "content": "", 
     "date": "2014-12-12T04:21:13.000+0000", 
@@ -53,11 +80,5 @@ def predict(run_nr):
     "date": "2017-05-09T17:02:50.000+0000", 
     "id": 169532, 
     "title": "    Nioh - Become a visitor", "number": 2, "nick": "subject992"}
-    data_generator.add_data_round(data_round1)
-    data_generator.add_data_round(data_round2)
 
-    predictions = model.predict(generator)
-
-    # TODO: add rolling average
-    # TODO: emit zeros if number of datapoints is too small
-    return predictions
+    predict(run_nr=1, [data_round1, data_round2])

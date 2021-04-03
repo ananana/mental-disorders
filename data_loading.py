@@ -67,8 +67,7 @@ def load_erisk_data(writings_df, hyperparams_features, by_subset=True,
     return user_level_texts, subjects_split, vocabulary
 
 
-def load_erisk_server_data(datarounds_json, hyperparams_features, tokenizer,
-                    pronouns = ["i", "me", "my", "mine", "myself"],
+def load_erisk_server_data(datarounds_json, tokenizer,
                    logger=None, verbose=0):
     if verbose:
         if not logger:
@@ -81,15 +80,7 @@ def load_erisk_server_data(datarounds_json, hyperparams_features, tokenizer,
             # add ch to logger
             logger.addHandler(ch)
             logger.setLevel(logging.DEBUG)
-        logger.info("Initializing model...\n")
         logger.debug("Loading data...\n")
-    vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
-    voc_size = hyperparams_features['max_features']
-    emotion_lexicon = load_NRC(hyperparams_features['nrc_lexicon_path'])
-    emotions = list(emotion_lexicon.keys())
-    liwc_dict = load_LIWC(hyperparams_features['liwc_path'])
-    liwc_categories = set(liwc_dict.keys())
-    liwc_words_for_categories = pickle.load(open(hyperparams_features["liwc_words_cached"], "rb"))
 
     subjects_split = {'test': []}
     user_level_texts = {}
