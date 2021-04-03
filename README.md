@@ -4,7 +4,7 @@ This directory contains the code needed to load UPV's models for Task 2 (HAN) an
 The required libraries are:
 - tensorflow2, keras
 - numpy, nltk, sklearn, pandas
-The full list of packages and versions is found in `requirements.txt` (may contain some unnecessary ones)
+The full list of packages and versions I used is found in `requirements.txt` (may contain some unnecessary ones)
 
 The required data:
 - expects a `config.json` in the root directory (containing paths to resource files)

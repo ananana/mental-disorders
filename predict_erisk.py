@@ -42,8 +42,8 @@ def predict(run_nr, data_rounds):
                                     shuffle=False,
                                             compute_liwc=True)
 
-    data_generator.add_data_round(data_round1)
-    data_generator.add_data_round(data_round2)
+    for data_round in data_rounds:
+        data_generator.add_data_round(data_round)
 
     predictions = model.predict(generator)
 

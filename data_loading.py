@@ -67,7 +67,7 @@ def load_erisk_data(writings_df, hyperparams_features, by_subset=True,
     return user_level_texts, subjects_split, vocabulary
 
 
-def load_erisk_server_data(datarounds_json, tokenizer,
+def load_erisk_server_data(dataround_json, tokenizer,
                    logger=None, verbose=0):
     if verbose:
         if not logger:
@@ -84,25 +84,24 @@ def load_erisk_server_data(datarounds_json, tokenizer,
 
     subjects_split = {'test': []}
     user_level_texts = {}
-    for datapoint in datarounds_json:
-        words = []
-        raw_text = ""
-        if "title" in datapoint:
-            tokenized_title = tokenizer.tokenize(datapoint["title"])
-            words.extend(tokenized_title)
-            raw_text += datapoint["title"]
-        if "content" in datapoint:
-            tokenized_text = tokenizer.tokenize(datapoint["content"])
-            words.extend(tokenized_text)
-            raw_text += datapoint["content"]
-        
-        if datapoint["nick"] not in user_level_texts.keys():
-            user_level_texts[datapoint["nick"]] = {}
-            user_level_texts[datapoint["nick"]]['texts'] = [words]
-            user_level_texts[datapoint["nick"]]['raw'] = [raw_text]
-            subjects_split['test'].append(datapoint['nick'])
-        else:
-            user_level_texts[datapoint["nick"]]['texts'].append(words)
-            user_level_texts[datapoint["nick"]]['raw'].append(raw_text)
+    words = []
+    raw_text = ""
+    if "title" in dataround_json:
+        tokenized_title = tokenizer.tokenize(datapoint["title"])
+        words.extend(tokenized_title)
+        raw_text += dataround_json["title"]
+    if "content" in dataround_json:
+        tokenized_text = tokenizer.tokenize(dataround_json["content"])
+        words.extend(tokenized_text)
+        raw_text += dataround_json["content"]
+    
+    if dataround_json["nick"] not in user_level_texts.keys():
+        user_level_texts[dataround_json["nick"]] = {}
+        user_level_texts[dataround_json["nick"]]['texts'] = [words]
+        user_level_texts[dataround_json["nick"]]['raw'] = [raw_text]
+        subjects_split['test'].append(dataround_json['nick'])
+    else:
+        user_level_texts[dataround_json["nick"]]['texts'].append(words)
+        user_level_texts[dataround_json["nick"]]['raw'].append(raw_text)
             
     return user_level_texts, subjects_split
