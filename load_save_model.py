@@ -19,7 +19,7 @@ def load_params(model_path, general_config_path='config.json'):
         config = json.load(f)
     for k in config:
         if k not in hyperparams_features:
-            hyperparams_features[k] = config = k
+            hyperparams_features[k] = config[k]
     hyperparams['optimizer'] = optimizers.Adam(lr=hyperparams['lr'], #beta_1=0.9, beta_2=0.999, epsilon=0.0001,
                                    decay=hyperparams['decay'])
     return hyperparams, hyperparams_features
