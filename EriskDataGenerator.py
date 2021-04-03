@@ -2,6 +2,8 @@ import sys
 from nltk.tokenize import RegexpTokenizer
 from DataGenerator import DataGenerator
 import logging
+from data_loading import load_erisk_server_data
+
 class EriskDataGenerator(DataGenerator):
     def __init__(self, **kwargs):
         self.data = {}
