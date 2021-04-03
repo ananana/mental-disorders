@@ -6,7 +6,7 @@ import logging, sys, os
 import pickle
 from DataGenerator import DataGenerator
 from model import build_hierarchical_model
-from resource_loading import load_NRC, load_LIWC
+from resource_loading import load_NRC, load_LIWC, load_stopwords
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ['CUDA_VISIBLE_DEVICES'] = '-1' # When cudnn implementation not found, run this
@@ -138,7 +138,7 @@ def initialize_datasets(user_level_data, subjects_split, hyperparams, hyperparam
 
     return data_generator_train, data_generator_valid
 
-def initialize_model(hyperparams, hyperparams_features, stopwords_dim,
+def initialize_model(hyperparams, hyperparams_features,
               logger=None, session=None, transfer=False):
 
     if not logger:
@@ -164,6 +164,9 @@ def initialize_model(hyperparams, hyperparams_features, stopwords_dim,
       liwc_categories_dim = len(liwc_categories)
     if 'stopwords' in hyperparams['ignore_layer']:
       stopwords_dim = 0
+    else:
+      stopwords_list = load_stopwords(hyperparams_features['stopwords_path'])
+      stopwords_dim = len(stopwords_list)
     
     # Initialize model
     model = build_hierarchical_model(hyperparams, hyperparams_features,
@@ -175,7 +178,6 @@ def initialize_model(hyperparams, hyperparams_features, stopwords_dim,
 
 def train(user_level_data, subjects_split, 
           hyperparams, hyperparams_features, 
-          stopwords_dim,
           experiment, dataset_type, transfer_type, logger=None,
           validation_set='valid',
           version=0, epochs=50, start_epoch=0,
@@ -211,7 +213,6 @@ def train(user_level_data, subjects_split,
         else:
             logger.info("Initializing model...\n")
         model = initialize_model(hyperparams, hyperparams_features,
-                                stopwords_dim = stopwords_dim,
                                  session=session, transfer=transfer_layer)
 
        

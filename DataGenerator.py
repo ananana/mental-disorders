@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 import re
 from tensorflow.keras.preprocessing import sequence
-from resource_loading import load_NRC, load_LIWC, load_vocabulary
+from resource_loading import load_NRC, load_LIWC, load_vocabulary, load_stopwords
 from feature_encoders import encode_emotions, encode_pronouns, encode_stopwords, encode_liwc_categories
 class DataGenerator(Sequence):
     'Generates data for Keras'
@@ -50,6 +50,7 @@ class DataGenerator(Sequence):
             self.liwc_categories = []
         else:
             self.liwc_categories = set(self.liwc_dict.keys())
+        self.stopwords_list = load_stopwords(hyperparams_features['stopwords_path'])
 
         self._post_indexes_per_user()
         self.on_epoch_end()
@@ -87,7 +88,7 @@ class DataGenerator(Sequence):
         encoded_tokens = [self.vocabulary.get(w, self.voc_size-1) for w in tokens]
         encoded_emotions = encode_emotions(tokens, self.emotion_lexicon, self.emotions)
         encoded_pronouns = encode_pronouns(tokens, self.pronouns)
-        encoded_stopwords = encode_stopwords(tokens)
+        encoded_stopwords = encode_stopwords(tokens, self.stopwords_list)
         if not self.compute_liwc:
             encoded_liwc = None
         else:
