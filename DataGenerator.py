@@ -16,7 +16,7 @@ class DataGenerator(Sequence):
                  pronouns=["i", "me", "my", "mine", "myself"], 
                  shuffle=True, 
                  keep_last_batch=True,
-                 ablate_emotions=False, ablate_liwc=False):
+                 ablate_emotions=False, ablate_liwc=False, logger=None):
         'Initialization'
         self.seq_len = seq_len
         # Instantiate tokenizer
@@ -36,6 +36,7 @@ class DataGenerator(Sequence):
         self.generated_labels = []
         self.padding = "pre"
         self.pad_value = 0
+        self.logger = logger
         self.vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
         self.voc_size = hyperparams_features['max_features']
         if ablate_emotions:
@@ -60,7 +61,8 @@ class DataGenerator(Sequence):
         self.item_weights = []
         for u in range(len(self.subjects_split[self.set])):
             if self.subjects_split[self.set][u] not in self.data:
-                logger.warning("User %s has no posts in %s set. Ignoring.\n" % (
+                if self.logger:
+                    self.logger.warning("User %s has no posts in %s set. Ignoring.\n" % (
                     self.subjects_split[self.set][u], self.set))
                 continue
             user_posts = self.data[self.subjects_split[self.set][u]]['texts']
