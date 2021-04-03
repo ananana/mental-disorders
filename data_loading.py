@@ -97,16 +97,13 @@ def load_erisk_server_data(datarounds_json, tokenizer,
                 words.extend(tokenized_text)
                 raw_text += datapoint["content"]
             
-            liwc_categs = encode_liwc_categories(words, liwc_categories, liwc_words_for_categories)
             if datapoint["nick"] not in user_level_texts.keys():
                 user_level_texts[datapoint["nick"]] = {}
                 user_level_texts[datapoint["nick"]]['texts'] = [words]
-                user_level_texts[datapoint["nick"]]['liwc'] = [liwc_categs]
                 user_level_texts[datapoint["nick"]]['raw'] = [raw_text]
                 subjects_split['test'].append(datapoint['nick'])
             else:
                 user_level_texts[datapoint["nick"]]['texts'].append(words)
-                user_level_texts[datapoint["nick"]]['liwc'].append(liwc_categs)
                 user_level_texts[datapoint["nick"]]['raw'].append(raw_text)
             
     return user_level_texts, subjects_split
