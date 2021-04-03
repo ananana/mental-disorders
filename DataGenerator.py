@@ -4,7 +4,7 @@ import pickle
 import re
 from tensorflow.keras.preprocessing import sequence
 from resource_loading import load_NRC, load_LIWC, load_vocabulary
-from feature_encoders import encode_emotions, encode_pronouns, encode_stopwords
+from feature_encoders import encode_emotions, encode_pronouns, encode_stopwords, encode_liwc_categories
 class DataGenerator(Sequence):
     'Generates data for Keras'
     def __init__(self, user_level_data, subjects_split, set_type,
@@ -89,41 +89,10 @@ class DataGenerator(Sequence):
         if not self.compute_liwc:
             encoded_liwc = None
         else:
-            encoded_liwc = self.__encode_liwc_categories(tokens)
+            encoded_liwc = encode_liwc_categories(tokens, liwc_categories, liwc_words_for_categories)
         
         return (encoded_tokens, encoded_emotions, encoded_pronouns, encoded_stopwords, encoded_liwc,
                )
-    
-    def __encode_liwc_categories_full(self, tokens, relative=True):
-        categories_cnt = [0 for c in self.liwc_categories]
-        if not tokens:
-            return categories_cnt
-        text_len = len(tokens)
-        for i, category in enumerate(self.liwc_categories):
-            category_words = self.liwc_dict[category]
-            for t in tokens:
-                for word in category_words:
-                    if t==word or (word[-1]=='*' and t.startswith(word[:-1])) \
-                    or (t==word.split("'")[0]):
-                        categories_cnt[i] += 1
-                        break # one token cannot belong to more than one word in the category
-            if relative and text_len:
-                categories_cnt[i] = categories_cnt[i]/text_len
-        return categories_cnt
-        
-        
-    def __encode_liwc_categories(self, tokens, relative=True):
-        categories_cnt = [0 for c in self.liwc_categories]
-        if not tokens:
-            return categories_cnt
-        text_len = len(tokens)
-        for i, category in enumerate(self.liwc_categories):
-            for t in tokens:
-                if t in self.liwc_words_for_categories[category]:
-                    categories_cnt[i] += 1
-            if relative and text_len:
-                categories_cnt[i] = categories_cnt[i]/text_len
-        return categories_cnt
         
     def __len__(self):
         'Denotes the number of batches per epoch'
