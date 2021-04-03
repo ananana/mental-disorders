@@ -3,7 +3,7 @@ from resource_loading import load_stopwords
 import json
 from EriskDataGenerator import EriskDataGenerator
 
-def erisk_predict(run_nr):
+def predict(run_nr):
     model_paths = {
         1: 'models/lstm_selfharm_hierarchical107',    # 80 posts per chunk, trained on self-harm
         2: 'models/lstm_selfharm_hierarchical113',    # 10 posts per chunk, trained on self-harm
@@ -12,7 +12,7 @@ def erisk_predict(run_nr):
                                                       # depression+anorexia, trained on eRisk self-harm
     }
     model_path = model_paths[run_nr]
-    hyperparams, hyperparams_features = load_params(model_paths)
+    hyperparams, hyperparams_features = load_params(model_path)
 
     config = json.load("config.json")
     stopwords_list = load_stopwords(config['stopwords_list'])
