@@ -17,7 +17,7 @@ def predict(run_nr):
         config = json.load(f)
     stopwords_list = load_stopwords(config['stopwords_list'])
     model = load_saved_model_weights(model_path, hyperparams, hyperparams_features, 
-                                                      stopwords_dim=len(stopword_list),
+                                                      stopwords_dim=len(stopwords_list),
                                                       h5=True)
 
     data_generator = EriskDataGenerator()
