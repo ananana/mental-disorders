@@ -1,6 +1,7 @@
 from collections import Counter
 import numpy as np
 from resource_loading import load_NRC, load_LIWC, load_vocabulary
+from feature_encoders import encode_liwc_categories
 
 def load_erisk_data(writings_df, hyperparams_features, by_subset=True,
                     pronouns = ["i", "me", "my", "mine", "myself"],
@@ -65,3 +66,56 @@ def load_erisk_data(writings_df, hyperparams_features, by_subset=True,
             
     return user_level_texts, subjects_split, vocabulary
 
+
+def load_erisk_server_data(datarounds_json, hyperparams_features, tokenizer,
+                    pronouns = ["i", "me", "my", "mine", "myself"],
+                   logger=None, verbose=0):
+    if verbose:
+        if not logger:
+            logger = logging.getLogger('training')
+            ch = logging.StreamHandler(sys.stdout)
+            # create formatter
+            formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(message)s")
+            # add formatter to ch
+            ch.setFormatter(formatter)
+            # add ch to logger
+            logger.addHandler(ch)
+            logger.setLevel(logging.DEBUG)
+        logger.info("Initializing model...\n")
+        logger.debug("Loading data...\n")
+    vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
+    voc_size = hyperparams_features['max_features']
+    emotion_lexicon = load_NRC(hyperparams_features['nrc_lexicon_path'])
+    emotions = list(emotion_lexicon.keys())
+    liwc_dict = load_LIWC(hyperparams_features['liwc_path'])
+    liwc_categories = set(liwc_dict.keys())
+    liwc_words_for_categories = pickle.load(open(hyperparams_features["liwc_words_cached"], "rb"))
+
+    subjects_split = {'test': []}
+    user_level_texts = {}
+    for datapoints_json in datarounds_json:
+        for datapoint in datapoints_json:
+            words = []
+            raw_text = ""
+            if "title" in datapoint:
+                tokenized_title = tokenizer.tokenize(datapoint["title"])
+                words.extend(tokenized_title)
+                raw_text += datapoint["title"]
+            if "content" in datapoint:
+                tokenized_text = tokenizer.tokenize(datapoint["content"])
+                words.extend(tokenized_text)
+                raw_text += datapoint["content"]
+            
+            liwc_categs = encode_liwc_categories(words, liwc_categories, liwc_words_for_categories)
+            if datapoint["nick"] not in user_level_texts.keys():
+                user_level_texts[datapoint["nick"]] = {}
+                user_level_texts[datapoint["nick"]]['texts'] = [words]
+                user_level_texts[datapoint["nick"]]['liwc'] = [liwc_categs]
+                user_level_texts[datapoint["nick"]]['raw'] = [raw_text]
+                subjects_split['test'].append(datapoint['nick'])
+            else:
+                user_level_texts[datapoint["nick"]]['texts'].append(words)
+                user_level_texts[datapoint["nick"]]['liwc'].append(liwc_categs)
+                user_level_texts[datapoint["nick"]]['raw'].append(raw_text)
+            
+    return user_level_texts, subjects_split, vocabulary

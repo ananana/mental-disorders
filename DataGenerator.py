@@ -89,7 +89,7 @@ class DataGenerator(Sequence):
         if not self.compute_liwc:
             encoded_liwc = None
         else:
-            encoded_liwc = encode_liwc_categories(tokens, liwc_categories, liwc_words_for_categories)
+            encoded_liwc = encode_liwc_categories(tokens, self.liwc_categories, self.liwc_words_for_categories)
         
         return (encoded_tokens, encoded_emotions, encoded_pronouns, encoded_stopwords, encoded_liwc,
                )
