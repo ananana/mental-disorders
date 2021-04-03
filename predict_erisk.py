@@ -24,13 +24,32 @@ def erisk_predict(run_nr):
 
     # Reading eRisk data
     data_round1 = {
-    {"redditor": 338, "content": "", "date": "2014-12-12T04:21:13.000+0000", "id": 168996, "title": "    Copy the Reindeer", "number": 1, "nick": "subject8081"}
-    {"redditor": 339, "content": "    When I don't have the aisle seat and have to climb over people to use the bathroom. I have a tiny girl bladder.", "date": "2013-10-10T13:17:01.000+0000", "id": 169297, "title": "", "number": 1, "nick": "subject2621"}
-    {"redditor": 340, "content": "    I have a question about being a visitor in Nioh(Random encounters)", "date": "2017-05-09T17:01:50.000+0000", "id": 169531, "title": "    Nioh - Become a visitor", "number": 1, "nick": "subject992"}
-    }
+    "redditor": 338, "content": "", 
+    "date": "2014-12-12T04:21:13.000+0000", 
+    "id": 168996, 
+    "title": "    Copy the Reindeer", 
+    "number": 1, 
+    "nick": "subject8081"}
+    {"redditor": 339, 
+    "content": "    When I don't have the aisle seat and have to climb over people to use the bathroom. I have a tiny girl bladder.", 
+    "date": "2013-10-10T13:17:01.000+0000", 
+    "id": 169297, 
+    "title": "", 
+    "number": 1, 
+    "nick": "subject2621"}
+    {"redditor": 340, 
+    "content": "    I have a question about being a visitor in Nioh(Random encounters)", 
+    "date": "2017-05-09T17:01:50.000+0000", 
+    "id": 169531, "title": "    Nioh - Become a visitor", 
+    "number": 1, 
+    "nick": "subject992"}
+    
     data_round2 = {
-    {"redditor": 340, "content": "    New text", "date": "2017-05-09T17:02:50.000+0000", "id": 169532, "title": "    Nioh - Become a visitor", "number": 2, "nick": "subject992"}
-    }
+    "redditor": 340, 
+    "content": "    New text", 
+    "date": "2017-05-09T17:02:50.000+0000", 
+    "id": 169532, 
+    "title": "    Nioh - Become a visitor", "number": 2, "nick": "subject992"}
     data_generator.add_data_round(data_round1)
     data_generator.add_data_round(data_round2)
 
