@@ -2,6 +2,7 @@ from load_save_model import load_params, load_saved_model_weights
 from resource_loading import load_stopwords
 import json
 from EriskDataGenerator import EriskDataGenerator
+import numpy as np
 
 RUNS_MODEL_PATHS = {
         1: 'models/lstm_selfharm_hierarchical107',    # 80 posts per chunk, trained on self-harm
@@ -11,7 +12,7 @@ RUNS_MODEL_PATHS = {
                                                       # depression+anorexia, trained on eRisk self-harm
     }
 
-def predict(run_nr, data_rounds):
+def predict(run_nr, data_rounds, alert_threshold=0.5, rolling_window=50, conservative_alerts=True):
     """
     Expects a run_nr corresponding to the solution to be used for generating predictions.
     Solutions correspond to the ones described in the PDF document - more details on their
@@ -45,11 +46,24 @@ def predict(run_nr, data_rounds):
     for data_round in data_rounds:
         data_generator.add_data_round(data_round)
 
-    predictions = model.predict(generator)
+    predictions = model.predict(data_generator)
 
-    # TODO: add rolling average
-    # TODO: emit zeros if number of datapoints is too small
-    return predictions
+    # TODO: implement rolling average per user
+    # Use rolling average on prediction scores
+    if run==3:
+        rolling_predictions = []
+        # The first predictions will be copied
+        rolling_predictions[:rolling_window-1] = predictions[:rolling_window-1]
+        # rolling average over predictions
+        rolling_predictions.extend(np.convolve(predictions, np.ones(rolling_window), 'valid') / rolling_window)
+        # predictions = rolling_predictions
+
+    if conservative_alerts and len(data_rounds) < hyperparams['posts_per_group']:
+        alerts = [0 for p in predictions]
+    else:
+        alerts = [int(p >= 0.5) for p in predictions]
+
+    return alerts
 
 if __name__=='__main__':
         # Reading eRisk data
