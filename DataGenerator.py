@@ -50,11 +50,11 @@ class DataGenerator(Sequence):
         else:
             self.liwc_categories = set(self.liwc_dict.keys())
 
-        self.__post_indexes_per_user()
+        self._post_indexes_per_user()
         self.on_epoch_end()
         
  
-    def __post_indexes_per_user(self):
+    def _post_indexes_per_user(self):
         self.indexes_per_user = {u: [] for u in range(len(self.subjects_split[self.set]))}
         self.indexes_with_user = []
         self.item_weights = []
