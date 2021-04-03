@@ -87,7 +87,7 @@ def load_erisk_server_data(dataround_json, tokenizer,
     words = []
     raw_text = ""
     if "title" in dataround_json:
-        tokenized_title = tokenizer.tokenize(datapoint["title"])
+        tokenized_title = tokenizer.tokenize(dataround_json["title"])
         words.extend(tokenized_title)
         raw_text += dataround_json["title"]
     if "content" in dataround_json:
