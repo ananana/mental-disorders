@@ -81,4 +81,4 @@ if __name__=='__main__':
     "id": 169532, 
     "title": "    Nioh - Become a visitor", "number": 2, "nick": "subject992"}
 
-    predict(run_nr=1, [data_round1, data_round2])
+    predict(run_nr=1, data_rounds=[data_round1, data_round2])
