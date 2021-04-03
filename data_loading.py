@@ -84,26 +84,25 @@ def load_erisk_server_data(datarounds_json, tokenizer,
 
     subjects_split = {'test': []}
     user_level_texts = {}
-    for datapoints_json in datarounds_json:
-        for datapoint in datapoints_json:
-            words = []
-            raw_text = ""
-            if "title" in datapoint:
-                tokenized_title = tokenizer.tokenize(datapoint["title"])
-                words.extend(tokenized_title)
-                raw_text += datapoint["title"]
-            if "content" in datapoint:
-                tokenized_text = tokenizer.tokenize(datapoint["content"])
-                words.extend(tokenized_text)
-                raw_text += datapoint["content"]
-            
-            if datapoint["nick"] not in user_level_texts.keys():
-                user_level_texts[datapoint["nick"]] = {}
-                user_level_texts[datapoint["nick"]]['texts'] = [words]
-                user_level_texts[datapoint["nick"]]['raw'] = [raw_text]
-                subjects_split['test'].append(datapoint['nick'])
-            else:
-                user_level_texts[datapoint["nick"]]['texts'].append(words)
-                user_level_texts[datapoint["nick"]]['raw'].append(raw_text)
+    for datapoint in datarounds_json:
+        words = []
+        raw_text = ""
+        if "title" in datapoint:
+            tokenized_title = tokenizer.tokenize(datapoint["title"])
+            words.extend(tokenized_title)
+            raw_text += datapoint["title"]
+        if "content" in datapoint:
+            tokenized_text = tokenizer.tokenize(datapoint["content"])
+            words.extend(tokenized_text)
+            raw_text += datapoint["content"]
+        
+        if datapoint["nick"] not in user_level_texts.keys():
+            user_level_texts[datapoint["nick"]] = {}
+            user_level_texts[datapoint["nick"]]['texts'] = [words]
+            user_level_texts[datapoint["nick"]]['raw'] = [raw_text]
+            subjects_split['test'].append(datapoint['nick'])
+        else:
+            user_level_texts[datapoint["nick"]]['texts'].append(words)
+            user_level_texts[datapoint["nick"]]['raw'].append(raw_text)
             
     return user_level_texts, subjects_split
