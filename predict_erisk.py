@@ -50,7 +50,7 @@ def predict(run_nr, data_rounds, alert_threshold=0.5, rolling_window=50, conserv
 
     # TODO: implement rolling average per user
     # Use rolling average on prediction scores
-    if run==3:
+    if run_nr==3:
         rolling_predictions = []
         # The first predictions will be copied
         rolling_predictions[:rolling_window-1] = predictions[:rolling_window-1]
