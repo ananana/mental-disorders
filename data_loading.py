@@ -118,4 +118,4 @@ def load_erisk_server_data(datarounds_json, hyperparams_features, tokenizer,
                 user_level_texts[datapoint["nick"]]['liwc'].append(liwc_categs)
                 user_level_texts[datapoint["nick"]]['raw'].append(raw_text)
             
-    return user_level_texts, subjects_split, vocabulary
+    return user_level_texts, subjects_split
