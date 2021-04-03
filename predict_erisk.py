@@ -20,7 +20,13 @@ def predict(run_nr):
                                                       stopwords_dim=len(stopwords_list),
                                                       h5=True)
 
-    data_generator = EriskDataGenerator()
+    data_generator = EriskDataGenerator(hyperparams_features=hyperparams_features,
+                                seq_len=hyperparams['maxlen'], batch_size=hyperparams['batch_size'],
+                                     max_posts_per_user=None,
+                                    posts_per_group=hyperparams['posts_per_group'],
+                                    post_groups_per_user=None, 
+                                    shuffle=False,
+                                            compute_liwc=True)
 
     # Reading eRisk data
     data_round1 = {
