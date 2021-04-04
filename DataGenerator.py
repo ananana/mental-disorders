@@ -15,7 +15,7 @@ class DataGenerator(Sequence):
                  max_posts_per_user=None, 
                  pronouns=["i", "me", "my", "mine", "myself"], 
                  shuffle=True, 
-                 keep_last_batch=True,
+                 keep_last_batch=True, return_subjects=False, 
                  ablate_emotions=False, ablate_liwc=False, logger=None):
         'Initialization'
         self.seq_len = seq_len
@@ -37,6 +37,7 @@ class DataGenerator(Sequence):
         self.padding = "pre"
         self.pad_value = 0
         self.logger = logger
+        self.return_subjects = return_subjects
         self.vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
         self.voc_size = hyperparams_features['max_features']
         if ablate_emotions:
@@ -83,7 +84,7 @@ class DataGenerator(Sequence):
 
         self.item_weights = []
 
-    def __encode_text(self, tokens, raw_text):
+    def __encode_text__(self, tokens, raw_text):
         # Using voc_size-1 value for OOV token
         encoded_tokens = [self.vocabulary.get(w, self.voc_size-1) for w in tokens]
         encoded_emotions = encode_emotions(tokens, self.emotion_lexicon, self.emotions)
@@ -122,8 +123,11 @@ class DataGenerator(Sequence):
             post_indexes_per_user[user].append(post_indexes)
 
 
-        X, s, y = self.__data_generation_hierarchical(users, post_indexes_per_user)
-        return X, y
+        X, s, y = self.__data_generation_hierarchical__(users, post_indexes_per_user)
+        if self.return_subjects:
+            return X, s, y
+        else:
+            return X, y
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
@@ -132,7 +136,7 @@ class DataGenerator(Sequence):
         if self.shuffle:
             np.random.shuffle(self.indexes)
     
-    def __data_generation_hierarchical(self, users, post_indexes):
+    def __data_generation_hierarchical__(self, users, post_indexes):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
         user_tokens = []
         user_categ_data = []
@@ -174,7 +178,7 @@ class DataGenerator(Sequence):
                 
                 for p, posting in enumerate(words): 
                     encoded_tokens, encoded_emotions, encoded_pronouns, encoded_stopwords, encoded_liwc, \
-                         = self.__encode_text(words[p], raw_text[p])
+                         = self.__encode_text__(words[p], raw_text[p])
                     if 'liwc' in self.data[subject] and not self.compute_liwc:
                         liwc = liwc_scores[i][p]
                     else:
