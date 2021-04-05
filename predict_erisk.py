@@ -43,7 +43,7 @@ def scores_to_alerts(predictions_dict, conservative_alerts=False,
     users = predictions_dict.keys()
     scores_per_user = dict(predictions_dict)
     def _rolling_average(scores, window):
-        if window < len(scores):
+        if window > len(scores):
             return scores
         rolling_predictions = []
         rolling_predictions[:rolling_window-1] = scores[:rolling_window-1]
@@ -88,7 +88,7 @@ def predict(run_nr, data_rounds, conservative_alerts=True):
                                                       h5=True)
 
     data_generator = EriskDataGenerator(hyperparams_features=hyperparams_features,
-                                seq_len=hyperparams['maxlen'], batch_size=hyperparams['batch_size'],
+                                seq_len=hyperparams['maxlen'], batch_size=1,
                                      max_posts_per_user=None,
                                     posts_per_group=hyperparams['posts_per_group'],
                                     post_groups_per_user=None, 
@@ -102,7 +102,8 @@ def predict(run_nr, data_rounds, conservative_alerts=True):
     predictions_per_user = {}
     for dp in data_generator:
         prediction = model.predict_step(dp)
-        u = dp[1][0]
+        users = dp[1]
+        u = users[0]
         if u not in predictions_per_user:
             predictions_per_user[u] = []
         predictions_per_user[u].append(prediction.numpy()[0].item())
