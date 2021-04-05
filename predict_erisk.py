@@ -33,13 +33,13 @@ def scores_to_alerts(predictions_dict, posts_per_datapoint=None, conservative_al
     def _rolling_average(scores, window):
         if window < len(scores):
             return scores
-        rolling_predictions[:rolling_window-1] = predictions[:rolling_window-1]
-        rolling_predictions.extend(np.convolve(predictions, np.ones(rolling_window), 'valid') / rolling_window)
+        rolling_predictions = []
+        rolling_predictions[:rolling_window-1] = scores[:rolling_window-1]
+        rolling_predictions.extend(np.convolve(scores, np.ones(rolling_window), 'valid') / rolling_window)
         return rolling_predictions
     if rolling_window:
         scores_per_user = {u: _rolling_average(scores_per_user[u], rolling_window) for u in users}
     alerts_per_user = {}
-    # TODO: implement conservative alerts here?
     for u in users:
         alerts_per_user[u] = [int(p>=alert_threshold) for p in scores_per_user[u]]
     return {u: {'scores': scores_per_user[u], 'alerts': alerts_per_user[u]} for u in users}
@@ -88,7 +88,7 @@ def predict(run_nr, data_rounds, alert_threshold=0.5, rolling_window=50, conserv
         u = dp[1][0]
         if u not in predictions_per_user:
             predictions_per_user[u] = []
-        predictions_per_user[u].append(prediction.numpy().item())
+        predictions_per_user[u].append(prediction.numpy()[0].item())
     alerts_per_user = scores_to_alerts(predictions_per_user, rolling_window=rolling_window,
         conservative_alerts=(conservative_alerts and len(data_rounds) < hyperparams['posts_per_group']))
     return alerts_per_user
