@@ -8,20 +8,22 @@ RUNS_MODEL_PATHS = {
         1: 'models/lstm_selfharm_hierarchical107',    # 80 posts per chunk, trained on self-harm
         2: 'models/lstm_selfharm_hierarchical113',    # 10 posts per chunk, trained on self-harm
         3: 'models/lstm_selfharm_hierarchical113',    # 10 posts per chunk, trained on self-harm, rolling average predictions
-        # 4: 'models/lstm_selfharm_hierarchical107'     # 10 posts per chunk, pre-trained on eRisk
-                                                      # depression+anorexia, trained on eRisk self-harm
+        4: 'models/lstm_selfharm_hierarchical120'     # 50 posts per chunk, pre-trained on eRisk
+                                                      # anorexia, trained on eRisk self-harm
     }
 
 ALERT_THRESHOLDS = {
     1: 0.3,
     2: 0.5,
-    3: 0.5
+    3: 0.5,
+    4: 0.5
 }
 
 ROLLING_WINDOW = {
     1: 0,
     2: 0,
-    3: 50
+    3: 50,
+    4: 0
 }
 
 def scores_to_alerts(predictions_dict, conservative_alerts=False, 
@@ -57,7 +59,7 @@ def scores_to_alerts(predictions_dict, conservative_alerts=False,
             alerts_per_user[u] = [0 for p in scores_per_user[u]]
         else:
             alerts_per_user[u] = [int(p>=alert_threshold) for p in scores_per_user[u]]
-    return {u: {'scores': scores_per_user[u], 'decisions': alerts_per_user[u]} for u in users}
+    return {u: {'scores': scores_per_user[u], 'decisionsh ': alerts_per_user[u]} for u in users}
 
 def predict(run_nr, data_rounds, conservative_alerts=True):
     """
@@ -143,4 +145,4 @@ if __name__=='__main__':
     "title": "    Nioh - Become a visitor", "number": 2, "nick": "subject992"}]
 
 
-    print(predict(run_nr=3, data_rounds=[data_round1, data_round2]))
+    print(predict(run_nr=4, data_rounds=[data_round1, data_round2]))
