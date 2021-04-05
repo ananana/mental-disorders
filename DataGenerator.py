@@ -204,7 +204,7 @@ class DataGenerator(Sequence):
 
 
                 labels.append(label)
-                subjects.append(subject_id)
+                subjects.append(subject)
 
         user_tokens = sequence.pad_sequences(user_tokens, 
                                              maxlen=self.posts_per_group, 
