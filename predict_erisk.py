@@ -78,7 +78,7 @@ def predict(run_nr, data_rounds, alert_threshold=0.5, rolling_window=50, conserv
                                      max_posts_per_user=None,
                                     posts_per_group=hyperparams['posts_per_group'],
                                     post_groups_per_user=None, 
-                                    shuffle=False,
+                                    shuffle=False, return_subjects=True,
                                             compute_liwc=True)
 
     for data_round in data_rounds:
