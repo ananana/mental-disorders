@@ -12,6 +12,18 @@ RUNS_MODEL_PATHS = {
                                                       # depression+anorexia, trained on eRisk self-harm
     }
 
+ALERT_THRESHOLDS = {
+    1: 0.3,
+    2: 0.5,
+    3: 0.5
+}
+
+ROLLING_WINDOW = {
+    1: 0,
+    2: 0,
+    3: 50
+}
+
 def scores_to_alerts(predictions_dict, conservative_alerts=False, 
                      alert_threshold=0.5, rolling_window=0):
     '''Generates alerts decisions (1/0) from a dictionary of prediction scores per user
@@ -47,7 +59,7 @@ def scores_to_alerts(predictions_dict, conservative_alerts=False,
             alerts_per_user[u] = [int(p>=alert_threshold) for p in scores_per_user[u]]
     return {u: {'scores': scores_per_user[u], 'alerts': alerts_per_user[u]} for u in users}
 
-def predict(run_nr, data_rounds, alert_threshold=0.5, rolling_window=50, conservative_alerts=True):
+def predict(run_nr, data_rounds, conservative_alerts=True):
     """
     Expects a run_nr corresponding to the solution to be used for generating predictions.
     Solutions correspond to the ones described in the PDF document - more details on their
@@ -69,6 +81,8 @@ def predict(run_nr, data_rounds, alert_threshold=0.5, rolling_window=50, conserv
     
     model_path = RUNS_MODEL_PATHS[run_nr]
     hyperparams, hyperparams_features = load_params(model_path)
+    alert_threshold = ALERT_THRESHOLDS[run_nr]
+    rolling_window = ROLLING_WINDOW[run_nr]
 
     model = load_saved_model_weights(model_path, hyperparams, hyperparams_features, 
                                                       h5=True)
