@@ -19,6 +19,6 @@ They can be downloaded from the analogous subdirectories in the Azure Storage, u
 
 `predict_erisk.py` illustrates how models can be loaded and used to generate predictions on eRisk data.
 
-`predict(run_nr, data_rounds)` can be used to obtain predictions (scores and alerts for each user, for each datapoint) from a specific trained model given some data obtained from the eRisk server, across one or more rounds of interaction with the server.
+`predict(run_nr, data_rounds)` can be used to obtain predictions (scores and alerts ("decision"s) for each user ("nick"), for each datapoint) from a specific trained model given some data obtained from the eRisk server, across one or more rounds of interaction with the server.
 
 For more control, `EriskDataGenerator()` (along with `model.predict_step()`) can be used directly, which allows to incrementally add new datapoints to the generator as they are received from the server (without creating a new loader for each new datapoint).
