@@ -59,7 +59,7 @@ def scores_to_alerts(predictions_dict, conservative_alerts=False,
             alerts_per_user[u] = [0 for p in scores_per_user[u]]
         else:
             alerts_per_user[u] = [int(p>=alert_threshold) for p in scores_per_user[u]]
-    return {u: {'scores': scores_per_user[u], 'decisionsh ': alerts_per_user[u]} for u in users}
+    return {u: {'scores': scores_per_user[u], 'decisions': alerts_per_user[u]} for u in users}
 
 def predict(run_nr, data_rounds, conservative_alerts=True):
     """
