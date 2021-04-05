@@ -12,7 +12,7 @@ RUNS_MODEL_PATHS = {
                                                       # depression+anorexia, trained on eRisk self-harm
     }
 
-def scores_to_alerts(predictions_dict, conservative_alerts=True, 
+def scores_to_alerts(predictions_dict, conservative_alerts=False, 
                      alert_threshold=0.5, rolling_window=0):
     '''Generates alerts decisions (1/0) from a dictionary of prediction scores per user
     Parameters:
@@ -41,7 +41,10 @@ def scores_to_alerts(predictions_dict, conservative_alerts=True,
         scores_per_user = {u: _rolling_average(scores_per_user[u], rolling_window) for u in users}
     alerts_per_user = {}
     for u in users:
-        alerts_per_user[u] = [int(p>=alert_threshold) for p in scores_per_user[u]]
+        if conservative_alerts:
+            alerts_per_user[u] = [0 for p in scores_per_user[u]]
+        else:
+            alerts_per_user[u] = [int(p>=alert_threshold) for p in scores_per_user[u]]
     return {u: {'scores': scores_per_user[u], 'alerts': alerts_per_user[u]} for u in users}
 
 def predict(run_nr, data_rounds, alert_threshold=0.5, rolling_window=50, conservative_alerts=True):
