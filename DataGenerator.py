@@ -15,7 +15,7 @@ class DataGenerator(Sequence):
                  max_posts_per_user=None, 
                  pronouns=["i", "me", "my", "mine", "myself"], 
                  shuffle=True, 
-                 keep_last_batch=True, return_subjects=False, 
+                 keep_last_batch=True, return_subjects=False, chunk_level_datapoints=True,
                  ablate_emotions=False, ablate_liwc=False, logger=None):
         'Initialization'
         self.seq_len = seq_len
@@ -70,17 +70,33 @@ class DataGenerator(Sequence):
             user_posts = self.data[self.subjects_split[self.set][u]]['texts']
             if self.max_posts_per_user:
                 user_posts = user_posts[:self.max_posts_per_user]
-            nr_post_groups = int(np.ceil(len(user_posts) / self.posts_per_group))
             
-            if self.post_groups_per_user:
-                nr_post_groups = min(self.post_groups_per_user, nr_post_groups)
-            for i in range(nr_post_groups):
-                # Generate random ordered samples of the posts
-      
-                self.indexes_per_user[u].append(range(i*self.posts_per_group + self.post_offset,
-                                                    min((i+1)*self.posts_per_group + self.post_offset, len(user_posts))))
-                self.indexes_with_user.append((u, range(i*self.posts_per_group ,
-                                                    min((i+1)*self.posts_per_group + self.post_offset, len(user_posts)))))
+            if chunk_level_datapoints:
+                # Non-overlapping chunks
+                nr_post_groups = int(np.ceil(len(user_posts) / self.posts_per_group))
+                if self.post_groups_per_user:
+                    nr_post_groups = min(self.post_groups_per_user, nr_post_groups)
+                for i in range(nr_post_groups):
+                    # Generate random ordered samples of the posts
+          
+                    self.indexes_per_user[u].append(range(i*self.posts_per_group + self.post_offset,
+                                                        min((i+1)*self.posts_per_group + self.post_offset, len(user_posts))))
+                    self.indexes_with_user.append((u, range(i*self.posts_per_group ,
+                                                        min((i+1)*self.posts_per_group + self.post_offset, len(user_posts)))))
+            else:
+                # Rolling window of datapoints: chunks with overlapping posts
+                nr_post_groups = len(user_posts)
+                if self.post_groups_per_user:
+                    nr_post_groups = min(self.post_groups_per_user, nr_post_groups)
+                for i in range(nr_post_groups):
+                    # Generate random ordered samples of the posts
+          
+                    self.indexes_per_user[u].append(range(i + self.post_offset,
+                                                        min(i + self.posts_per_group + self.post_offset, 
+                                                            len(user_posts))))
+                    self.indexes_with_user.append((u, range(i,
+                                                        min(i+self.posts_per_group + self.post_offset, 
+                                                            len(user_posts)))))
 
         self.item_weights = []
 
