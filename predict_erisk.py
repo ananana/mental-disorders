@@ -27,8 +27,10 @@ ROLLING_WINDOW = {
 }
 
 def scores_to_alerts(predictions_dict, conservative_alerts=False, 
-                     alert_threshold=0.5, rolling_window=0):
-    '''Generates alerts decisions (1/0) from a dictionary of prediction scores per user
+                     alert_threshold=0.5, rolling_window=0, 
+                     post_level=True, chunk_size=1):
+    '''Generates alerts decisions (1/0) from a dictionary of prediction scores per user.
+
     Parameters:
         predictions_dict: dictionary with ordered predictions per user (indexed by user id) 
         rolling_window: window of rolling average to be computed across prediction scores
@@ -40,10 +42,19 @@ def scores_to_alerts(predictions_dict, conservative_alerts=False,
         posts_per_datapoint: integer denoting number of posts per datapoint used in the training stage
             used in case of conservative_alerts=True
         alert_threshold: threshold on the score value above which to emit a positive alert
+        post_level: if True, it will generate one score/decision per post, even if the prediction
+                was done at the chunk level. Otherwise it will generate scores/decisions at the
+                chunk level.
         Returns: nested dictionary indexed by users, including the original prediction score
             ('scores' key) and the alert value (1/0) (the 'alerts' key)'''
     users = predictions_dict.keys()
-    scores_per_user = dict(predictions_dict)
+    scores_per_user = {u: [] for u in users}
+    for u in users:
+        scores_per_user[u] = []
+        for p in predictions_dict[u]:
+            # Duplicate the output to match the number of posts in the input
+            for i in range(chunk_size):
+                scores_per_user[u].append(p)
     def _rolling_average(scores, window):
         if window > len(scores):
             return scores
@@ -111,7 +122,8 @@ def predict(run_nr, data_rounds, conservative_alerts=True):
         predictions_per_user[u].append(prediction.numpy()[0].item())
     alerts_per_user = scores_to_alerts(predictions_per_user, rolling_window=rolling_window,
         alert_threshold=alert_threshold,
-        conservative_alerts=(conservative_alerts and len(data_rounds) < hyperparams['posts_per_group']))
+        conservative_alerts=(conservative_alerts and len(data_rounds) < hyperparams['posts_per_group']),
+        chunk_size=hyperparams['posts_per_group'])
     return alerts_per_user
 
 if __name__=='__main__':
