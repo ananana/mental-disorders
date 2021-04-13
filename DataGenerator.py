@@ -16,6 +16,7 @@ class DataGenerator(Sequence):
                  pronouns=["i", "me", "my", "mine", "myself"], 
                  shuffle=True, 
                  keep_last_batch=True, return_subjects=False, chunk_level_datapoints=True,
+                 keep_first_batches=False,
                  ablate_emotions=False, ablate_liwc=False, logger=None):
         'Initialization'
         self.seq_len = seq_len
@@ -36,6 +37,8 @@ class DataGenerator(Sequence):
         self.generated_labels = []
         self.padding = "pre"
         self.pad_value = 0
+        self.keep_first_batches=keep_first_batches # in the rolling window case, whether it will keep 
+        self.chunk_level_datapoints = chunk_level_datapoints
         self.logger = logger
         self.return_subjects = return_subjects
         self.vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
@@ -71,7 +74,7 @@ class DataGenerator(Sequence):
             if self.max_posts_per_user:
                 user_posts = user_posts[:self.max_posts_per_user]
             
-            if chunk_level_datapoints:
+            if self.chunk_level_datapoints:
                 # Non-overlapping chunks
                 nr_post_groups = int(np.ceil(len(user_posts) / self.posts_per_group))
                 if self.post_groups_per_user:
@@ -88,9 +91,18 @@ class DataGenerator(Sequence):
                 nr_post_groups = len(user_posts)
                 if self.post_groups_per_user:
                     nr_post_groups = min(self.post_groups_per_user, nr_post_groups)
+                if self.keep_first_batches:
+                    # Generate datapoints for first posts, before a complete chunk
+                    for i in range(self.posts_per_group):
+                        self.indexes_per_user[u].append(range(self.post_offset, i + self.post_offset,
+                                                            ))
+                        self.indexes_with_user.append((u, range(self.post_offset, i + self.post_offset,
+                                                            )))
+
                 for i in range(nr_post_groups):
-                    # Generate random ordered samples of the posts
-          
+                    # Stop at the last complete chunk
+                    if i + self.posts_per_group + self.post_offset > len(user_posts):
+                        break
                     self.indexes_per_user[u].append(range(i + self.post_offset,
                                                         min(i + self.posts_per_group + self.post_offset, 
                                                             len(user_posts))))
