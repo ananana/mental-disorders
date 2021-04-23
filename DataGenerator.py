@@ -3,8 +3,8 @@ import numpy as np
 import pickle
 import re
 from tensorflow.keras.preprocessing import sequence
-from resource_loading import load_NRC, load_LIWC, load_vocabulary
-from feature_encoders import encode_emotions, encode_pronouns, encode_stopwords
+from resource_loading import load_NRC, load_LIWC, load_vocabulary, load_stopwords
+from feature_encoders import encode_emotions, encode_pronouns, encode_stopwords, encode_liwc_categories
 class DataGenerator(Sequence):
     'Generates data for Keras'
     def __init__(self, user_level_data, subjects_split, set_type,
@@ -15,8 +15,8 @@ class DataGenerator(Sequence):
                  max_posts_per_user=None, 
                  pronouns=["i", "me", "my", "mine", "myself"], 
                  shuffle=True, 
-                 keep_last_batch=True,
-                 ablate_emotions=False, ablate_liwc=False):
+                 keep_last_batch=True, return_subjects=False, 
+                 ablate_emotions=False, ablate_liwc=False, logger=None):
         'Initialization'
         self.seq_len = seq_len
         # Instantiate tokenizer
@@ -36,6 +36,8 @@ class DataGenerator(Sequence):
         self.generated_labels = []
         self.padding = "pre"
         self.pad_value = 0
+        self.logger = logger
+        self.return_subjects = return_subjects
         self.vocabulary = load_vocabulary(hyperparams_features['vocabulary_path'])
         self.voc_size = hyperparams_features['max_features']
         if ablate_emotions:
@@ -49,18 +51,20 @@ class DataGenerator(Sequence):
             self.liwc_categories = []
         else:
             self.liwc_categories = set(self.liwc_dict.keys())
+        self.stopwords_list = load_stopwords(hyperparams_features['stopwords_path'])
 
-        self.__post_indexes_per_user()
+        self._post_indexes_per_user()
         self.on_epoch_end()
         
  
-    def __post_indexes_per_user(self):
+    def _post_indexes_per_user(self):
         self.indexes_per_user = {u: [] for u in range(len(self.subjects_split[self.set]))}
         self.indexes_with_user = []
         self.item_weights = []
         for u in range(len(self.subjects_split[self.set])):
             if self.subjects_split[self.set][u] not in self.data:
-                logger.warning("User %s has no posts in %s set. Ignoring.\n" % (
+                if self.logger:
+                    self.logger.warning("User %s has no posts in %s set. Ignoring.\n" % (
                     self.subjects_split[self.set][u], self.set))
                 continue
             user_posts = self.data[self.subjects_split[self.set][u]]['texts']
@@ -80,50 +84,19 @@ class DataGenerator(Sequence):
 
         self.item_weights = []
 
-    def __encode_text(self, tokens, raw_text):
+    def __encode_text__(self, tokens, raw_text):
         # Using voc_size-1 value for OOV token
         encoded_tokens = [self.vocabulary.get(w, self.voc_size-1) for w in tokens]
         encoded_emotions = encode_emotions(tokens, self.emotion_lexicon, self.emotions)
         encoded_pronouns = encode_pronouns(tokens, self.pronouns)
-        encoded_stopwords = encode_stopwords(tokens)
+        encoded_stopwords = encode_stopwords(tokens, self.stopwords_list)
         if not self.compute_liwc:
             encoded_liwc = None
         else:
-            encoded_liwc = self.__encode_liwc_categories(tokens)
+            encoded_liwc = encode_liwc_categories(tokens, self.liwc_categories, self.liwc_words_for_categories)
         
         return (encoded_tokens, encoded_emotions, encoded_pronouns, encoded_stopwords, encoded_liwc,
                )
-    
-    def __encode_liwc_categories_full(self, tokens, relative=True):
-        categories_cnt = [0 for c in self.liwc_categories]
-        if not tokens:
-            return categories_cnt
-        text_len = len(tokens)
-        for i, category in enumerate(self.liwc_categories):
-            category_words = self.liwc_dict[category]
-            for t in tokens:
-                for word in category_words:
-                    if t==word or (word[-1]=='*' and t.startswith(word[:-1])) \
-                    or (t==word.split("'")[0]):
-                        categories_cnt[i] += 1
-                        break # one token cannot belong to more than one word in the category
-            if relative and text_len:
-                categories_cnt[i] = categories_cnt[i]/text_len
-        return categories_cnt
-        
-        
-    def __encode_liwc_categories(self, tokens, relative=True):
-        categories_cnt = [0 for c in self.liwc_categories]
-        if not tokens:
-            return categories_cnt
-        text_len = len(tokens)
-        for i, category in enumerate(self.liwc_categories):
-            for t in tokens:
-                if t in self.liwc_words_for_categories[category]:
-                    categories_cnt[i] += 1
-            if relative and text_len:
-                categories_cnt[i] = categories_cnt[i]/text_len
-        return categories_cnt
         
     def __len__(self):
         'Denotes the number of batches per epoch'
@@ -150,8 +123,11 @@ class DataGenerator(Sequence):
             post_indexes_per_user[user].append(post_indexes)
 
 
-        X, s, y = self.__data_generation_hierarchical(users, post_indexes_per_user)
-        return X, y
+        X, s, y = self.__data_generation_hierarchical__(users, post_indexes_per_user)
+        if self.return_subjects:
+            return X, s, y
+        else:
+            return X, y
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
@@ -160,7 +136,7 @@ class DataGenerator(Sequence):
         if self.shuffle:
             np.random.shuffle(self.indexes)
     
-    def __data_generation_hierarchical(self, users, post_indexes):
+    def __data_generation_hierarchical__(self, users, post_indexes):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
         user_tokens = []
         user_categ_data = []
@@ -202,7 +178,7 @@ class DataGenerator(Sequence):
                 
                 for p, posting in enumerate(words): 
                     encoded_tokens, encoded_emotions, encoded_pronouns, encoded_stopwords, encoded_liwc, \
-                         = self.__encode_text(words[p], raw_text[p])
+                         = self.__encode_text__(words[p], raw_text[p])
                     if 'liwc' in self.data[subject] and not self.compute_liwc:
                         liwc = liwc_scores[i][p]
                     else:
@@ -228,7 +204,7 @@ class DataGenerator(Sequence):
 
 
                 labels.append(label)
-                subjects.append(subject_id)
+                subjects.append(subject)
 
         user_tokens = sequence.pad_sequences(user_tokens, 
                                              maxlen=self.posts_per_group, 

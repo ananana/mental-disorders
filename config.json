@@ -4,6 +4,7 @@
     "vocabulary_path": "data/all_vocab_clpsych_erisk_stop_20000.pkl",
     "nrc_lexicon_path" : "resources/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt",
     "liwc_path": "resources/liwc.dic",
+    "stopwords_path": "resources/stopwords.txt",
     "embeddings_path": "resources/glove.840B/glove.840B.300d.txt",
     "liwc_words_cached": "data/liwc_categories_for_vocabulary_erisk_clpsych_stop_20K.pkl",
     "pretrained_model_path": "models/lstm_symanto_hierarchical64"

@@ -1,6 +1,7 @@
 from collections import Counter
 import numpy as np
 from resource_loading import load_NRC, load_LIWC, load_vocabulary
+from feature_encoders import encode_liwc_categories
 
 def load_erisk_data(writings_df, hyperparams_features, by_subset=True,
                     pronouns = ["i", "me", "my", "mine", "myself"],
@@ -65,3 +66,44 @@ def load_erisk_data(writings_df, hyperparams_features, by_subset=True,
             
     return user_level_texts, subjects_split, vocabulary
 
+
+def load_erisk_server_data(dataround_json, tokenizer,
+                   logger=None, verbose=0):
+    if verbose:
+        if not logger:
+            logger = logging.getLogger('training')
+            ch = logging.StreamHandler(sys.stdout)
+            # create formatter
+            formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(message)s")
+            # add formatter to ch
+            ch.setFormatter(formatter)
+            # add ch to logger
+            logger.addHandler(ch)
+            logger.setLevel(logging.DEBUG)
+        logger.debug("Loading data...\n")
+
+    subjects_split = {'test': []}
+    user_level_texts = {}
+
+    for datapoint in dataround_json:
+        words = []
+        raw_text = ""
+        if "title" in datapoint:
+            tokenized_title = tokenizer.tokenize(datapoint["title"])
+            words.extend(tokenized_title)
+            raw_text += datapoint["title"]
+        if "content" in datapoint:
+            tokenized_text = tokenizer.tokenize(datapoint["content"])
+            words.extend(tokenized_text)
+            raw_text += datapoint["content"]
+        
+        if datapoint["nick"] not in user_level_texts.keys():
+            user_level_texts[datapoint["nick"]] = {}
+            user_level_texts[datapoint["nick"]]['texts'] = [words]
+            user_level_texts[datapoint["nick"]]['raw'] = [raw_text]
+            subjects_split['test'].append(datapoint['nick'])
+        else:
+            user_level_texts[datapoint["nick"]]['texts'].append(words)
+            user_level_texts[datapoint["nick"]]['raw'].append(raw_text)
+            
+    return user_level_texts, subjects_split

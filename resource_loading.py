@@ -57,3 +57,10 @@ def load_embeddings(path, embedding_dim, vocabulary_path, voc_size):
     print('Words not found in embedding space %d' % (len(embedding_matrix)-cnt_inv))
  
     return embedding_matrix
+
+def load_stopwords(path):
+    stopwords_list = []
+    with open(path) as f:
+        for line in f:
+            stopwords_list.append(f)
+    return stopwords_list
