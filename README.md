@@ -9,11 +9,10 @@ The full list of packages and versions I used is found in `requirements.txt` (ma
 
 The required data:
 - expects a `config.json` in the root directory (containing paths to resource files)
-- expects files with model weights and their hyperparameter configurations in `models/`
+- for generating predictions, expects files with trained model weights and their hyperparameter configurations in `models/`
 - expects external resources (NRC lexicon, LIWC lexicon, pre-trained embeddings) in `resources/`
 - expects vocabulary files and a LIWC cache file in `data/`
 
-They can be downloaded from the analogous subdirectories in the Azure Storage, under `upv-models`.
 
 ## Usage
 
