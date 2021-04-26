@@ -1,4 +1,4 @@
-This directory contains the code needed to load UPV's models for Task 2 (HAN) and use them for inference (or training) on eRisk data.
+This repository contains code for training and using deep learning models for mental disorder detection from social media data.
 
 ## Install
 The required libraries are:
