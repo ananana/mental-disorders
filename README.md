@@ -30,6 +30,6 @@ For more control, `EriskDataGenerator()` (along with `model.predict_step()`) can
 
 ## Publications
 
-If using this resource, please cite the following papers:
+The code in this repository has been used for experiments published in several papers. If using this resource, please cite the relevant papers:
 
 _On the Explainability of Automatic Predictions ofMental Disorders from Social Media Data_, Ana Sabina Uban, Berta Chulvi, Paolo Rosso, NLDB 2021
