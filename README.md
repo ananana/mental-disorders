@@ -32,4 +32,12 @@ For more control, `EriskDataGenerator()` (along with `model.predict_step()`) can
 
 The code in this repository has been used for experiments published in several papers. If using this resource, please cite the relevant papers:
 
-_On the Explainability of Automatic Predictions ofMental Disorders from Social Media Data_, Ana Sabina Uban, Berta Chulvi, Paolo Rosso, NLDB 2021
+- _Explainability of Depression Detection on Social Media: From Deep Learning Models to Psychological Interpretations and Multimodality_, Ana-Sabina Uban, Berta Chulvi, Paolo Rosso, in Early Detection of Mental Health Disorders by Social Media Monitoring, 2022
+- _Detecting early signs of depression in the conversational domain: The role of transfer learning in low-resource scenarios_, Petr Lorenc, Ana-Sabina Uban, Paolo Rosso, Jan Šedivý, NLDB 2022
+- _Multi-aspect transfer learning for detecting low resource mental disorders on social media_, Ana Sabina Uban, Berta Chulvi, Paolo Rosso, LREC 2022
+- _On the Explainability of Automatic Predictions of Mental Disorders from Social Media Data_, Ana Sabina Uban, Berta Chulvi, Paolo Rosso, NLDB 2021
+- _An emotion and cognitive based analysis of mental health disorders from social media data_, Ana-Sabina Uban, Berta Chulvi, Paolo Rosso, Future Generation Computer Systems, 2021
+- _Upv-symanto at erisk 2021: Mental health author profiling for early risk prediction on the internet_, Angelo Basile, Mara Chinea-Rios, Ana-Sabina Uban, Thomas Müller, Luise Rössler, Seren Yenikent, María Alberta Chulvi-Ferriols, Paolo Rosso, Marc Franco-Salvador, CLEF 2021
+- _Deep learning architectures and strategies for early detection of self-harm and depression level prediction_, Ana-Sabina Uban, Paolo Rosso, CLEF 2020
+
+
